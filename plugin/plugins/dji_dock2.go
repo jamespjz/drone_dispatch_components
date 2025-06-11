@@ -31,23 +31,21 @@ type InitParams struct {
 	DockSn      string // 无人机序列号
 	ClientId    string // 客户端ID
 	MqttHost    string // MQTT主机地址
-	UserName    string // 用户名
-	Password    string // 密码
+	UserName    string // mqtt用户名
+	Password    string // mqtt密码
 }
 
 /**  鉴权  **/
 func InitializationDJIDock2Adapter(params InitParams) (djiDock2Adapter *DJIDock2Adapter, err error) {
-	// 添加MQTT属性
-	mqttHost := "tcp://" + config.MqttSettings["host"] + ":" + config.MqttSettings["port"] // 获取配置中的MQTT主机地址
 
 	opts := mqtt.NewClientOptions(). // 设置MQTT客户端选项
-						AddBroker(mqttHost).                          // 添加MQTT代理地址
-						SetProtocolVersion(4).                        // 设置MQTT协议版本
-						SetClientID(params.ClientId).                 // 设置客户端ID
-						SetUsername(config.MqttSettings["username"]). // 设置认证用户名
-						SetPassword(config.MqttSettings["password"]). // 设置认证密码
-						SetAutoReconnect(true).                       // 启用断线自动重连
-						SetCleanSession(true)                         // 设置清除会话模式
+						AddBroker(params.MqttHost).   // 添加MQTT代理地址
+						SetProtocolVersion(4).        // 设置MQTT协议版本
+						SetClientID(params.ClientId). // 设置客户端ID
+						SetUsername(params.UserName). // 设置认证用户名
+						SetPassword(params.Password). // 设置认证密码
+						SetAutoReconnect(true).       // 启用断线自动重连
+						SetCleanSession(true)         // 设置清除会话模式
 
 	client := mqtt.NewClient(opts) // 创建新的MQTT客户端
 
@@ -358,8 +356,9 @@ func init() {
 	// 注册 DJI Dock2 适配器
 	plugin.RegisterPlugin("dji_dock2", func() service.DroneAdapter {
 		//从配置获取参数
+		tm := plugin.NewTokenManager("dji_dock2")
 		params := InitParams{
-			AccessToken: plugin.GetAccessToken(),                                                    // 获取访问令牌
+			AccessToken: tm.GetAccessToken(),                                                        // 获取访问令牌
 			GateWaySn:   config.DjiSettings["GatewaySn"],                                            // 获取网关序列号
 			DockSn:      config.DjiSettings["DockSn"],                                               // 获取机场序列号
 			ClientId:    config.DjiSettings["ClientId"],                                             // 获取客户端ID
@@ -367,11 +366,27 @@ func init() {
 			UserName:    config.MqttSettings["username"],                                            // 获取MQTT用户名
 			Password:    config.MqttSettings["password"],                                            // 获取MQTT密码
 		}
+		// 设置令牌
+		tm.SetAccessToken(params.AccessToken, "", config.TokenExpiresInSettings) // 设置访问令牌，刷新令牌和过期时间
 
 		adapter, err := InitializationDJIDock2Adapter(params)
 		if err != nil {
 			log.Fatalf("DJI Dock2初始化失败: %v", err)
 		}
+		// 启动令牌刷新协程
+		go adapter.startTokenRefreshScheduler(tm)
 		return adapter
 	})
+}
+
+// 令牌刷新调度器
+func (d *DJIDock2Adapter) startTokenRefreshScheduler(tm *plugin.TokenManager) {
+	ticker := time.NewTicker(5 * time.Minute) // 每5分钟刷新一次令牌
+	defer ticker.Stop()
+	for range ticker.C {
+		_, err := tm.RefreshAccessToken()
+		if err != nil {
+			log.Printf("令牌刷新失败: %v", err)
+		}
+	}
 }

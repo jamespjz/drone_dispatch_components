@@ -60,8 +60,8 @@ func Unload(pluginName string) {
 
 // 获取启用状态下的适配器
 func Get(pluginName string) service.DroneAdapter {
-	registry.mu.Lock()
-	defer registry.mu.Unlock()
+	registry.mu.RLock()
+	defer registry.mu.RUnlock()
 	if meta, ok := registry.Plugins[pluginName]; ok && meta.Status == service.PluginEnabled {
 		return meta.Build()
 	}

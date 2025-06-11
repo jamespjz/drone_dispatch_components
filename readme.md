@@ -1,6 +1,6 @@
 ## 插件说明
 - [lecheng-drone](https://gitee.com/jamespi/lecheng-drone) - 这是一个无人机控制的核心库，提供了无人机的基本操作接口。
-
+- 插件调用：go get gitee.com/jamespi/drone_dispatch@latest
 
 ## 插件调用示例
 
@@ -15,10 +15,10 @@ import (
 
 func main() {
 	// 启用指定插件
-	plugin.LoadEnableList([]string{"dji"})
+	plugin.LoadEnableList([]string{"dji_dock2"})
 
 	// 获取并使用
-	drone := plugin.Get("dji")
+	drone := plugin.Get("dji_dock2")
 	if drone != nil {
 		drone.TakeOff()
 	} else {

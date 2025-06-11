@@ -1,3 +1,4 @@
+// 插件生命周期管理器
 package plugin
 
 import "gitee.com/jamespi/lecheng-drone/service"
@@ -25,13 +26,12 @@ func LoadUnloadedList(selected []string) {
 
 // 获取全部注册的插件列表
 func PluginsList() []service.PluginMeta {
-	registry.mu.Lock()
-	defer registry.mu.Unlock()
+	registry.mu.RLock()
+	defer registry.mu.RUnlock()
 
 	var list []service.PluginMeta
 	for _, meta := range registry.Plugins {
 		list = append(list, *meta)
 	}
 	return list
-
 }

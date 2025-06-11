@@ -6,11 +6,12 @@ import (
 )
 
 type Config struct {
-	Drone    *Drone      `yarml:"drone"`
-	Mqtt     *MqttConfig `yarml:"Mqtt"`
-	Database *Database   `yarml:"Database"`
-	RtmpURL  string      `yarml:"RtmpURL"`
-	AmapKey  string      `yarml:"AmapKey"`
+	Drone          *Drone      `yarml:"drone"`
+	Mqtt           *MqttConfig `yarml:"Mqtt"`
+	Database       *Database   `yarml:"Database"`
+	RtmpURL        string      `yarml:"RtmpURL"`
+	AmapKey        string      `yarml:"AmapKey"`
+	TokenExpiresIn int         `yarml:"TokenExpiresIn"`
 }
 
 type Drone struct {
@@ -123,3 +124,5 @@ var RedisSettings = map[string]string{
 var RtmpURLSettings = cfg.RtmpURL
 
 var AmapKeySettings = cfg.AmapKey
+
+var TokenExpiresInSettings = cfg.TokenExpiresIn

@@ -1,0 +1,33 @@
+Drone:
+  Dji:
+    appId: "123"   #大疆开发平台应用ID
+    appKey: "a8e399325caf85b268850c123456789" #大疆开发平台应用key
+    appLicense: "F2OhNBXROVFtDAImP/qlANPKKY7NalLutMgDcpiVo66HSluHchQHQ01NQrnNsaNbt4IbEqBzGetN6yZfU0E4dKXcn6k8eHQh6KFxQbUcKSIvKAOz/EpIUUduMEsBkgj0ZowdpYxmG0Rt0YUEvEuR8SyTAMYAHCJTDJb5nNTcbC4=" #大疆开发平台应用License
+    url: "https://openapi.dji.com" #大疆开发平台API地址
+    GatewaySn: "dji-way-1234567890" #大疆网关序列号
+    DjiWebsocket: "https://gateway.dji.com" #sdk与前端通信地址
+    DockSn: "dji-dock-1234567890" #大疆机库序列号
+    ClientId: "dji-drone-1234567890" #客户端ID
+Mqtt:
+  host: "113.415.205.191"
+  port: 1883
+  username: "12345"   #登录验证码
+  password: "12345" #登录验证码
+
+Database:
+  default:
+    link: "mysql:root:Dfs@168@tcp(192.168.5.15:3306)/xxx?loc=Local&parseTime=true&charset=utf8mb4"
+  clickhouse:
+    link: "http://192.168.5.200:8123?username=default&password=123456&database=xxxxx"
+
+RtmpURL: "rtmp://live.dji.com/live/8824080713361" #直播地址
+
+AmapKey: "88765419c7d717d2cde3ddc2eb123456" #高德地图key
+
+TokenExpiresIn: 3600 #Token过期时间，单位秒
+
+FH:
+  host: "https://es-flight-api-cn.djigate.com"
+  port:
+  q: "东江牧歌"
+  xUserToken: "eyJhbGciOiJIUzUxMiIsImNyaXQiOlsidHlwIiwiYWxnIiwia2lkIl0sImtpZCI6IjhiZmRiZmRkLWM4OGYtNGE5Yi04NzI3LWQ0ZGYzYWE5OTJlOSIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50IjoiMTU1MDMwMzc3NjAiLCJleHAiOjIwNjU4NzM3NDEsIm5iZiI6MTc1MDM0MDk0MSwib3JnYW5pemF0aW9uX3V1aWQiOiJhODg3ZjRkMy0wMTg2LTQ1OGMtOTBhMC1jMWQ1MGU4ZjM4ZjciLCJwcm9qZWN0X3V1aWQiOiIiLCJzdWIiOiJmaDIiLCJ1c2VyX2lkIjoiMTU3NDcwMzk4NDY5MTQxMjk5MiJ9.HwRfFQUXT3vGdElPCLFg06d-BzRcRREyvWJfFtzvdYrmVHB-zy9bZEN08BSYKxCpGPKp8F2_vO39U9-zY9E1uA"   #登录验证码

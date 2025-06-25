@@ -5,8 +5,10 @@ import (
 	"gitee.com/jamespi/lecheng-drone/config"
 	"gitee.com/jamespi/lecheng-drone/plugin"
 	"gitee.com/jamespi/lecheng-drone/service"
+	"github.com/google/uuid"
 	"io"
 	"net/http"
+	"reflect"
 	"strings"
 )
 
@@ -23,201 +25,6 @@ func NewFH2Adapter() *FH2Adapter {
 	}
 }
 
-func (F *FH2Adapter) AirportBindStatus() (bool, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) AirportOrganizationBind() (bool, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) TakeOff() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) TakeOffToPointProgress() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) Land() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) LandToPointProgress() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) DrcStatusNotify() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) JoystickInvalidNotify() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) StickControl(stickX, stickY int) (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) DroneEmergencyStop() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) FlightAuthorityGrab() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) FlightAuthorityRelease() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraModeSwitch(mode string) (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraPhotoTake() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraPhotoStop() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraRecordingStart() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraRecordingStop() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraFrameZoom(frameX, frameY int) (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraFocalLengthSet(focalLength int) (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraScreenDrag(dragX, dragY int, isFollow bool) (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraPhotoStorageSet(storageType string) (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) CameraRecordingStorageSet(storageType string) (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneName() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneType() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneStatus() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneLocation() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneBatteryLevel() (int, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneCameraStatus() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneFlightTime() (int, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneMaxAltitude() (int, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneMaxSpeed() (int, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDronePayloadCapacity() (int, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneManufacturer() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneModel() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneFirmwareVersion() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetDroneLastMaintenanceDate() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) SupportsMqtt() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) Subscribe(topic string, callback func(message string)) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (F *FH2Adapter) GetLiveStreamURL() (string, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 // 获取组织下的项目列表
 func (F *FH2Adapter) GetprojectList() (string, error) {
 	url := config.FH2Settings["host"] + "/openapi/v0.1/project?page=1&page_size=10&q=" + config.FH2Settings["q"] + "&prj_authorized_status=project-status-authorized&usage=simple&sort_column=created_at&sort_type=ASC"
@@ -227,7 +34,7 @@ func (F *FH2Adapter) GetprojectList() (string, error) {
 		return "", fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 设置请求头
-	req.Header.Add("X-Request-Id", "")
+	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
 	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
 
@@ -254,7 +61,7 @@ func (F *FH2Adapter) GetDeviceList(projectUuid string) (string, error) {
 		return "", fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 设置请求头
-	req.Header.Add("X-Request-Id", "")
+	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
 	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
 	req.Header.Add("X-Project-Uuid", projectUuid)
@@ -282,7 +89,7 @@ func (F *FH2Adapter) GetStsToken(projectUuid string) (string, error) {
 		return "", fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 设置请求头
-	req.Header.Add("X-Request-Id", "")
+	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
 	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
 	req.Header.Add("X-Project-Uuid", projectUuid)
@@ -331,7 +138,7 @@ func (F *FH2Adapter) SetFinishUpload(projectUuid string, objectKeyPrefix string,
 		return "", fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 设置请求头
-	req.Header.Add("X-Request-Id", "")
+	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
 	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
 	req.Header.Add("X-Project-Uuid", projectUuid)
@@ -361,7 +168,7 @@ func (F *FH2Adapter) CreateFlightTask(projectUuid string, payLoad string) (strin
 		return "", fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 设置请求头
-	req.Header.Add("X-Request-Id", "")
+	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
 	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
 	req.Header.Add("X-Project-Uuid", projectUuid)
@@ -400,7 +207,7 @@ func (F *FH2Adapter) GetWayLine(projectUuid string) (string, error) {
 		return "", fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 设置请求头
-	req.Header.Add("X-Request-Id", "")
+	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
 	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
 	req.Header.Add("X-Project-Uuid", projectUuid)
@@ -429,7 +236,7 @@ func (F *FH2Adapter) GetWayLineInfo(projectUuid string, wayLineUuid string) (str
 		return "", fmt.Errorf("创建请求失败: %v", err)
 	}
 	// 设置请求头
-	req.Header.Add("X-Request-Id", "")
+	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
 	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
 	req.Header.Add("X-Project-Uuid", projectUuid)
@@ -451,8 +258,7 @@ func (F *FH2Adapter) GetWayLineInfo(projectUuid string, wayLineUuid string) (str
 
 // 实例化 FH2Adapter 并注册到插件系统（自动注册）
 func init() {
+	FH2Adapter := NewFH2Adapter()
 	// 注册 FH2 适配器插件
-	plugin.RegisterPlugin("fh2", func() service.DroneAdapter {
-		return NewFH2Adapter()
-	})
+	plugin.RegisterPlugin(plugin.FH2Plugin, reflect.TypeOf((*service.FH2DroneAdapter)(nil)).Elem(), FH2Adapter)
 }

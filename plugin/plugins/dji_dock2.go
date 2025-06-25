@@ -8,6 +8,7 @@ import (
 	"gitee.com/jamespi/lecheng-drone/service"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
+	"reflect"
 	"sync"
 	"time"
 )
@@ -353,30 +354,27 @@ func (d *DJIDock2Adapter) GetLiveStreamURL() (string, error) {
 
 // 实例化 DJIDock2Adapter 并注册到插件系统（自动注册）
 func init() {
+	//从配置获取参数
+	tm := plugin.NewTokenManager("dji_dock2")
+	params := InitParams{
+		AccessToken: tm.GetAccessToken(),                                                        // 获取访问令牌
+		GateWaySn:   config.DjiSettings["GatewaySn"],                                            // 获取网关序列号
+		DockSn:      config.DjiSettings["DockSn"],                                               // 获取机场序列号
+		ClientId:    config.DjiSettings["ClientId"],                                             // 获取客户端ID
+		MqttHost:    "tcp://" + config.MqttSettings["host"] + ":" + config.MqttSettings["port"], // 获取MQTT主机地址
+		UserName:    config.MqttSettings["username"],                                            // 获取MQTT用户名
+		Password:    config.MqttSettings["password"],                                            // 获取MQTT密码
+	}
+	// 设置令牌
+	tm.SetAccessToken(params.AccessToken, "", config.TokenExpiresInSettings) // 设置访问令牌，刷新令牌和过期时间
+	adapter, err := InitializationDJIDock2Adapter(params)
+	if err != nil {
+		log.Fatalf("DJI Dock2初始化失败: %v", err)
+	}
+	// 启动令牌刷新协程
+	go adapter.startTokenRefreshScheduler(tm)
 	// 注册 DJI Dock2 适配器
-	plugin.RegisterPlugin("dji_dock2", func() service.DroneAdapter {
-		//从配置获取参数
-		tm := plugin.NewTokenManager("dji_dock2")
-		params := InitParams{
-			AccessToken: tm.GetAccessToken(),                                                        // 获取访问令牌
-			GateWaySn:   config.DjiSettings["GatewaySn"],                                            // 获取网关序列号
-			DockSn:      config.DjiSettings["DockSn"],                                               // 获取机场序列号
-			ClientId:    config.DjiSettings["ClientId"],                                             // 获取客户端ID
-			MqttHost:    "tcp://" + config.MqttSettings["host"] + ":" + config.MqttSettings["port"], // 获取MQTT主机地址
-			UserName:    config.MqttSettings["username"],                                            // 获取MQTT用户名
-			Password:    config.MqttSettings["password"],                                            // 获取MQTT密码
-		}
-		// 设置令牌
-		tm.SetAccessToken(params.AccessToken, "", config.TokenExpiresInSettings) // 设置访问令牌，刷新令牌和过期时间
-
-		adapter, err := InitializationDJIDock2Adapter(params)
-		if err != nil {
-			log.Fatalf("DJI Dock2初始化失败: %v", err)
-		}
-		// 启动令牌刷新协程
-		go adapter.startTokenRefreshScheduler(tm)
-		return adapter
-	})
+	plugin.RegisterPlugin(plugin.DJIDock2Plugin, reflect.TypeOf((*service.DJIDock2DroneAdapter)(nil)).Elem(), adapter)
 }
 
 // 令牌刷新调度器

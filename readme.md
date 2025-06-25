@@ -9,22 +9,36 @@ package main
 
 import (
 	"fmt"
-	"my-drone-project/plugin"
+	"gitee.com/jamespi/lecheng-drone/plugin"
 	_ "gitee.com/jamespi/lecheng-drone/plugin/plugins" // 自动注册插件
+	"gitee.com/jamespi/lecheng-drone/service"
 )
 
 func main() {
 	// 启用指定插件
-	plugin.LoadEnableList([]string{"dji_dock2"})
-
+	plugin.LoadEnableList([]string{"fh2"})
 	// 获取并使用
-	drone := plugin.Get("dji_dock2")
-	if drone != nil {
-		drone.TakeOff()
+if fh2, ok := plugin.Get[service.FH2DroneAdapter](plugin.FH2Plugin); ok {
+		// 调用适配器方法
+		projectList, err := fh2.GetprojectList()
+if err != nil {
+			fmt.Println("获取项目列表失败:", err)
+    return
+        }
+		fmt.Println("项目列表:", projectList)
+
+		deviceList, err := fh2.GetDeviceList("example-project-uuid")
+if err != nil {
+			fmt.Println("获取设备列表失败:", err)
+    return
+        }
+		fmt.Println("设备列表:", deviceList)
 	} else {
 		fmt.Println("插件未启用或不存在")
 	}
+
 }
+
 
 ```
 

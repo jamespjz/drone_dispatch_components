@@ -3,7 +3,7 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
-	"gitee.com/jamespi/lecheng-drone/config"
+	"gitee.com/jamespi/drone_dispatch/config"
 	"net/http"
 	"sync"
 	"time"

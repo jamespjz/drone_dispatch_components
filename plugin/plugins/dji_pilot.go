@@ -1,10 +1,5 @@
 package plugins
 
-import (
-	"gitee.com/jamespi/lecheng-drone/plugin"
-	"gitee.com/jamespi/lecheng-drone/service"
-)
-
 type DJIPilotAdapter struct {
 }
 
@@ -246,7 +241,7 @@ func (d *DJIPilotAdapter) GetLiveStreamURL() (string, error) {
 
 // 实例化 DJIPilotAdapter 并注册到插件系统（自动注册）
 func init() {
-	plugin.RegisterPlugin("dji_pilot", func() service.DroneAdapter {
-		return &DJIPilotAdapter{}
-	})
+	//plugin.RegisterPlugin("dji_pilot", func() service.DroneAdapter {
+	//	return &DJIPilotAdapter{}
+	//})
 }

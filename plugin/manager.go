@@ -2,7 +2,7 @@
 package plugin
 
 import (
-	"gitee.com/jamespi/lecheng-drone/service"
+	"gitee.com/jamespi/drone_dispatch/service"
 	"reflect"
 )
 

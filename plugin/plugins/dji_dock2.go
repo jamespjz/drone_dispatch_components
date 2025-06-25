@@ -3,9 +3,9 @@ package plugins
 import (
 	"encoding/json"
 	"fmt"
-	"gitee.com/jamespi/lecheng-drone/config"
-	"gitee.com/jamespi/lecheng-drone/plugin"
-	"gitee.com/jamespi/lecheng-drone/service"
+	"gitee.com/jamespi/drone_dispatch/config"
+	"gitee.com/jamespi/drone_dispatch/plugin"
+	"gitee.com/jamespi/drone_dispatch/service"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"reflect"

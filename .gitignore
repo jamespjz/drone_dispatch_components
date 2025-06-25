@@ -9,6 +9,8 @@ bin-release/
 
 config.yaml
 
+go.sum
+
 # Executables
 *.swf
 *.air

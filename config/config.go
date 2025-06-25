@@ -12,6 +12,7 @@ type Config struct {
 	RtmpURL        string      `yarml:"RtmpURL"`
 	AmapKey        string      `yarml:"AmapKey"`
 	TokenExpiresIn int         `yarml:"TokenExpiresIn"`
+	FH2            *FH2        `yarml:"FH"`
 }
 
 type Drone struct {
@@ -46,6 +47,13 @@ type Database struct {
 
 type Def struct {
 	Link string `yarml:"link"`
+}
+
+type FH2 struct {
+	host       string `yarml:"host"`
+	port       string `yarml:"port"`
+	q          string `yarml:"q"`
+	XUserToken string `yarml:"xUserToken"`
 }
 
 var cfg Config
@@ -126,3 +134,10 @@ var RtmpURLSettings = cfg.RtmpURL
 var AmapKeySettings = cfg.AmapKey
 
 var TokenExpiresInSettings = cfg.TokenExpiresIn
+
+var FH2Settings = map[string]string{
+	"host":     cfg.FH2.host,
+	"port":     cfg.FH2.port,
+	"q":        cfg.FH2.q,
+	"username": cfg.FH2.XUserToken,
+}

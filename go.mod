@@ -1,4 +1,4 @@
-module gitee.com/jamespi/lecheng-drone
+module gitee.com/jamespi/drone_dispatch
 
 go 1.23.3
 

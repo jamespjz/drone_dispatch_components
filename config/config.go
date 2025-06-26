@@ -6,54 +6,54 @@ import (
 )
 
 type Config struct {
-	Drone          *Drone      `yarml:"drone"`
-	Mqtt           *MqttConfig `yarml:"Mqtt"`
-	Database       *Database   `yarml:"Database"`
-	RtmpURL        string      `yarml:"RtmpURL"`
-	AmapKey        string      `yarml:"AmapKey"`
-	TokenExpiresIn int         `yarml:"TokenExpiresIn"`
-	FH2            *FH2        `yarml:"FH"`
+	Drone          *Drone      `yaml:"drone"`
+	Mqtt           *MqttConfig `yaml:"Mqtt"`
+	Database       *Database   `yaml:"Database"`
+	RtmpURL        string      `yaml:"RtmpURL"`
+	AmapKey        string      `yaml:"AmapKey"`
+	TokenExpiresIn int         `yaml:"TokenExpiresIn"`
+	FH2            *FH2        `yaml:"FH"`
 }
 
 type Drone struct {
-	Dji *UAV `yarml:"Dji"`
-	MMC *UAV `yarml:"MMC"`
-	XAG *UAV `yarml:"XAG"`
+	Dji *UAV `yaml:"Dji"`
+	MMC *UAV `yaml:"MMC"`
+	XAG *UAV `yaml:"XAG"`
 }
 
 type UAV struct {
-	appId        string `yarml:"appId"`
-	appKey       string `yarml:"appKey"`
-	appLicense   string `yarml:"appLicense"`
-	url          string `yarml:"url"`
-	GatewaySn    string `yarml:"GatewaySn"`    //网关序列号
-	DjiWebsocket string `yarml:"DjiWebsocket"` //websocket地址
-	DockSn       string `yarml:"DockSn"`       //机场序列号
-	ClientId     string `yarml:"ClientId"`     //客户端ID
+	AppId        string `yaml:"appId"`
+	AppKey       string `yaml:"appKey"`
+	AppLicense   string `yaml:"appLicense"`
+	Url          string `yaml:"url"`
+	GatewaySn    string `yaml:"GatewaySn"`    //网关序列号
+	DjiWebsocket string `yaml:"DjiWebsocket"` //websocket地址
+	DockSn       string `yaml:"DockSn"`       //机场序列号
+	ClientId     string `yaml:"ClientId"`     //客户端ID
 }
 
 type MqttConfig struct {
-	host     string `yarml:"host"`
-	port     string `yarml:"port"`
-	username string `yarml:"username"`
-	password string `yarml:"password"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
 }
 
 type Database struct {
-	Def   *Def `yarml:"default"`
-	CK    *Def `yarml:"clickhouse"`
-	Redis *Def `yarml:"redis"`
+	Def   *Def `yaml:"default"`
+	CK    *Def `yaml:"clickhouse"`
+	Redis *Def `yaml:"redis"`
 }
 
 type Def struct {
-	Link string `yarml:"link"`
+	Link string `yaml:"link"`
 }
 
 type FH2 struct {
-	host       string `yarml:"host"`
-	port       string `yarml:"port"`
-	q          string `yarml:"q"`
-	XUserToken string `yarml:"xUserToken"`
+	Host       string `yaml:"host"`
+	Port       string `yaml:"port"`
+	Q          string `yaml:"q"`
+	XUserToken string `yaml:"xUserToken"`
 }
 
 var cfg Config
@@ -84,13 +84,13 @@ func init() {
 		panic(fmt.Errorf("配置解析失败: %w", err))
 	}
 
-	fmt.Printf("应用端口: %d\n", cfg.Drone.Dji.appId)
+	fmt.Printf("应用端口: %s\n", cfg.Drone.Dji.AppId)
 
 	DjiSettings = map[string]string{
-		"appId":        cfg.Drone.Dji.appId,
-		"appKey":       cfg.Drone.Dji.appKey,
-		"appLicense":   cfg.Drone.Dji.appLicense,
-		"url":          cfg.Drone.Dji.url,
+		"appId":        cfg.Drone.Dji.AppId,
+		"appKey":       cfg.Drone.Dji.AppKey,
+		"appLicense":   cfg.Drone.Dji.AppLicense,
+		"url":          cfg.Drone.Dji.Url,
 		"GatewaySn":    cfg.Drone.Dji.GatewaySn,
 		"DjiWebsocket": cfg.Drone.Dji.DjiWebsocket,
 		"DockSn":       cfg.Drone.Dji.DockSn,
@@ -98,10 +98,10 @@ func init() {
 	}
 
 	MMCSettings = map[string]string{
-		"appId":        cfg.Drone.MMC.appId,
-		"appKey":       cfg.Drone.MMC.appKey,
-		"appLicense":   cfg.Drone.MMC.appLicense,
-		"url":          cfg.Drone.MMC.url,
+		"appId":        cfg.Drone.MMC.AppId,
+		"appKey":       cfg.Drone.MMC.AppKey,
+		"appLicense":   cfg.Drone.MMC.AppLicense,
+		"url":          cfg.Drone.MMC.Url,
 		"GatewaySn":    cfg.Drone.MMC.GatewaySn,
 		"DjiWebsocket": cfg.Drone.MMC.DjiWebsocket,
 		"DockSn":       cfg.Drone.MMC.DockSn,
@@ -109,10 +109,10 @@ func init() {
 	}
 
 	XAGSettings = map[string]string{
-		"appId":        cfg.Drone.XAG.appId,
-		"appKey":       cfg.Drone.XAG.appKey,
-		"appLicense":   cfg.Drone.XAG.appLicense,
-		"url":          cfg.Drone.XAG.url,
+		"appId":        cfg.Drone.XAG.AppId,
+		"appKey":       cfg.Drone.XAG.AppKey,
+		"appLicense":   cfg.Drone.XAG.AppLicense,
+		"url":          cfg.Drone.XAG.Url,
 		"GatewaySn":    cfg.Drone.XAG.GatewaySn,
 		"DjiWebsocket": cfg.Drone.XAG.DjiWebsocket,
 		"DockSn":       cfg.Drone.XAG.DockSn,
@@ -120,10 +120,10 @@ func init() {
 	}
 
 	MqttSettings = map[string]string{
-		"host":     cfg.Mqtt.host,
-		"port":     cfg.Mqtt.port,
-		"username": cfg.Mqtt.username,
-		"password": cfg.Mqtt.password,
+		"host":     cfg.Mqtt.Host,
+		"port":     cfg.Mqtt.Port,
+		"username": cfg.Mqtt.Username,
+		"password": cfg.Mqtt.Password,
 	}
 
 	DatabaseSettings = map[string]string{
@@ -145,9 +145,9 @@ func init() {
 	TokenExpiresInSettings = cfg.TokenExpiresIn
 
 	FH2Settings = map[string]string{
-		"host":     cfg.FH2.host,
-		"port":     cfg.FH2.port,
-		"q":        cfg.FH2.q,
+		"host":     cfg.FH2.Host,
+		"port":     cfg.FH2.Port,
+		"q":        cfg.FH2.Q,
 		"username": cfg.FH2.XUserToken,
 	}
 }

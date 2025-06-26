@@ -86,63 +86,83 @@ func init() {
 
 	fmt.Printf("应用端口: %s\n", cfg.Drone.Dji.AppId)
 
-	DjiSettings = map[string]string{
-		"appId":        cfg.Drone.Dji.AppId,
-		"appKey":       cfg.Drone.Dji.AppKey,
-		"appLicense":   cfg.Drone.Dji.AppLicense,
-		"url":          cfg.Drone.Dji.Url,
-		"GatewaySn":    cfg.Drone.Dji.GatewaySn,
-		"DjiWebsocket": cfg.Drone.Dji.DjiWebsocket,
-		"DockSn":       cfg.Drone.Dji.DockSn,
-		"ClientId":     cfg.Drone.Dji.ClientId,
+	if cfg.Drone != nil && cfg.Drone.Dji != nil {
+		DjiSettings = map[string]string{
+			"appId":        cfg.Drone.Dji.AppId,
+			"appKey":       cfg.Drone.Dji.AppKey,
+			"appLicense":   cfg.Drone.Dji.AppLicense,
+			"url":          cfg.Drone.Dji.Url,
+			"GatewaySn":    cfg.Drone.Dji.GatewaySn,
+			"DjiWebsocket": cfg.Drone.Dji.DjiWebsocket,
+			"DockSn":       cfg.Drone.Dji.DockSn,
+			"ClientId":     cfg.Drone.Dji.ClientId,
+		}
 	}
 
-	MMCSettings = map[string]string{
-		"appId":        cfg.Drone.MMC.AppId,
-		"appKey":       cfg.Drone.MMC.AppKey,
-		"appLicense":   cfg.Drone.MMC.AppLicense,
-		"url":          cfg.Drone.MMC.Url,
-		"GatewaySn":    cfg.Drone.MMC.GatewaySn,
-		"DjiWebsocket": cfg.Drone.MMC.DjiWebsocket,
-		"DockSn":       cfg.Drone.MMC.DockSn,
-		"ClientId":     cfg.Drone.MMC.ClientId,
+	if cfg.Drone != nil && cfg.Drone.MMC != nil {
+		MMCSettings = map[string]string{
+			"appId":        cfg.Drone.MMC.AppId,
+			"appKey":       cfg.Drone.MMC.AppKey,
+			"appLicense":   cfg.Drone.MMC.AppLicense,
+			"url":          cfg.Drone.MMC.Url,
+			"GatewaySn":    cfg.Drone.MMC.GatewaySn,
+			"DjiWebsocket": cfg.Drone.MMC.DjiWebsocket,
+			"DockSn":       cfg.Drone.MMC.DockSn,
+			"ClientId":     cfg.Drone.MMC.ClientId,
+		}
 	}
 
-	XAGSettings = map[string]string{
-		"appId":        cfg.Drone.XAG.AppId,
-		"appKey":       cfg.Drone.XAG.AppKey,
-		"appLicense":   cfg.Drone.XAG.AppLicense,
-		"url":          cfg.Drone.XAG.Url,
-		"GatewaySn":    cfg.Drone.XAG.GatewaySn,
-		"DjiWebsocket": cfg.Drone.XAG.DjiWebsocket,
-		"DockSn":       cfg.Drone.XAG.DockSn,
-		"ClientId":     cfg.Drone.XAG.ClientId,
+	if cfg.Drone != nil && cfg.Drone.XAG != nil {
+		XAGSettings = map[string]string{
+			"appId":        cfg.Drone.XAG.AppId,
+			"appKey":       cfg.Drone.XAG.AppKey,
+			"appLicense":   cfg.Drone.XAG.AppLicense,
+			"url":          cfg.Drone.XAG.Url,
+			"GatewaySn":    cfg.Drone.XAG.GatewaySn,
+			"DjiWebsocket": cfg.Drone.XAG.DjiWebsocket,
+			"DockSn":       cfg.Drone.XAG.DockSn,
+			"ClientId":     cfg.Drone.XAG.ClientId,
+		}
 	}
 
-	MqttSettings = map[string]string{
-		"host":     cfg.Mqtt.Host,
-		"port":     cfg.Mqtt.Port,
-		"username": cfg.Mqtt.Username,
-		"password": cfg.Mqtt.Password,
+	if cfg.Mqtt != nil {
+		MqttSettings = map[string]string{
+			"host":     cfg.Mqtt.Host,
+			"port":     cfg.Mqtt.Port,
+			"username": cfg.Mqtt.Username,
+			"password": cfg.Mqtt.Password,
+		}
 	}
 
-	DatabaseSettings = map[string]string{
-		"link": cfg.Database.Def.Link,
+	if cfg.Database != nil && cfg.Database.Def != nil {
+		DatabaseSettings = map[string]string{
+			"link": cfg.Database.Def.Link,
+		}
 	}
 
-	CKSettings = map[string]string{
-		"link": cfg.Database.CK.Link,
+	if cfg.Database != nil && cfg.Database.CK != nil {
+		CKSettings = map[string]string{
+			"link": cfg.Database.CK.Link,
+		}
 	}
 
-	RedisSettings = map[string]string{
-		"link": cfg.Database.Redis.Link,
+	if cfg.Database != nil && cfg.Database.Redis != nil {
+		RedisSettings = map[string]string{
+			"link": cfg.Database.Redis.Link,
+		}
 	}
 
-	RtmpURLSettings = cfg.RtmpURL
+	if cfg.RtmpURL != "" {
+		RtmpURLSettings = cfg.RtmpURL
+	}
 
-	AmapKeySettings = cfg.AmapKey
+	if cfg.RtmpURL != "" {
+		AmapKeySettings = cfg.AmapKey
+	}
 
-	TokenExpiresInSettings = cfg.TokenExpiresIn
+	if cfg.RtmpURL != "" {
+		TokenExpiresInSettings = cfg.TokenExpiresIn
+	}
 
 	FH2Settings = map[string]string{
 		"host":     cfg.FH2.Host,

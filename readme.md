@@ -1,5 +1,5 @@
 ## 插件说明
-- [lecheng-drone](https://gitee.com/jamespi/lecheng-drone) - 这是一个无人机控制的核心库，提供了无人机的基本操作接口。
+- [drone_dispatch](https://gitee.com/jamespi/drone_dispatch) - 这是一个无人机控制的核心库，提供了无人机的基本操作接口。
 - 插件调用：go get gitee.com/jamespi/drone_dispatch@latest
 
 ## 插件调用示例
@@ -9,9 +9,9 @@ package main
 
 import (
 	"fmt"
-	"gitee.com/jamespi/lecheng-drone/plugin"
-	_ "gitee.com/jamespi/lecheng-drone/plugin/plugins" // 自动注册插件
-	"gitee.com/jamespi/lecheng-drone/service"
+	"gitee.com/jamespi/drone_dispatch/plugin"
+	_ "gitee.com/jamespi/drone_dispatch/plugin/plugins" // 自动注册插件
+	"gitee.com/jamespi/drone_dispatch/service"
 )
 
 func main() {

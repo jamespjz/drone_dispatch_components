@@ -97,6 +97,8 @@ func init() {
 			"DockSn":       cfg.Drone.Dji.DockSn,
 			"ClientId":     cfg.Drone.Dji.ClientId,
 		}
+	} else {
+		DjiSettings = make(map[string]string)
 	}
 
 	if cfg.Drone != nil && cfg.Drone.MMC != nil {
@@ -110,6 +112,8 @@ func init() {
 			"DockSn":       cfg.Drone.MMC.DockSn,
 			"ClientId":     cfg.Drone.MMC.ClientId,
 		}
+	} else {
+		MMCSettings = make(map[string]string)
 	}
 
 	if cfg.Drone != nil && cfg.Drone.XAG != nil {
@@ -123,6 +127,8 @@ func init() {
 			"DockSn":       cfg.Drone.XAG.DockSn,
 			"ClientId":     cfg.Drone.XAG.ClientId,
 		}
+	} else {
+		XAGSettings = make(map[string]string)
 	}
 
 	if cfg.Mqtt != nil {
@@ -132,42 +138,55 @@ func init() {
 			"username": cfg.Mqtt.Username,
 			"password": cfg.Mqtt.Password,
 		}
+	} else {
+		MqttSettings = make(map[string]string)
 	}
 
 	if cfg.Database != nil && cfg.Database.Def != nil {
 		DatabaseSettings = map[string]string{
 			"link": cfg.Database.Def.Link,
 		}
+	} else {
+		DatabaseSettings = make(map[string]string)
 	}
 
 	if cfg.Database != nil && cfg.Database.CK != nil {
 		CKSettings = map[string]string{
 			"link": cfg.Database.CK.Link,
 		}
+	} else {
+		CKSettings = make(map[string]string)
 	}
 
 	if cfg.Database != nil && cfg.Database.Redis != nil {
 		RedisSettings = map[string]string{
 			"link": cfg.Database.Redis.Link,
 		}
+	} else {
+		RedisSettings = make(map[string]string)
 	}
 
 	if cfg.RtmpURL != "" {
 		RtmpURLSettings = cfg.RtmpURL
 	}
 
-	if cfg.RtmpURL != "" {
+	if cfg.AmapKey != "" {
 		AmapKeySettings = cfg.AmapKey
 	}
 
-	if cfg.RtmpURL != "" {
+	if cfg.TokenExpiresIn > 0 {
 		TokenExpiresInSettings = cfg.TokenExpiresIn
 	}
 
-	FH2Settings = map[string]string{
-		"host":     cfg.FH2.Host,
-		"port":     cfg.FH2.Port,
-		"q":        cfg.FH2.Q,
-		"username": cfg.FH2.XUserToken,
+	if cfg.FH2 != nil {
+		FH2Settings = map[string]string{
+			"host":       cfg.FH2.Host,
+			"port":       cfg.FH2.Port,
+			"q":          cfg.FH2.Q,
+			"xUserToken": cfg.FH2.XUserToken,
+		}
+	} else {
+		FH2Settings = make(map[string]string)
 	}
+
 }

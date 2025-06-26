@@ -57,6 +57,17 @@ type FH2 struct {
 }
 
 var cfg Config
+var DjiSettings map[string]string
+var MMCSettings map[string]string
+var XAGSettings map[string]string
+var MqttSettings map[string]string
+var DatabaseSettings map[string]string
+var CKSettings map[string]string
+var RedisSettings map[string]string
+var RtmpURLSettings string
+var AmapKeySettings string
+var TokenExpiresInSettings int
+var FH2Settings map[string]string
 
 func init() {
 	viper.SetConfigName("config") // 文件名（不含扩展名）
@@ -75,69 +86,68 @@ func init() {
 
 	fmt.Printf("应用端口: %d\n", cfg.Drone.Dji.appId)
 
-}
+	DjiSettings = map[string]string{
+		"appId":        cfg.Drone.Dji.appId,
+		"appKey":       cfg.Drone.Dji.appKey,
+		"appLicense":   cfg.Drone.Dji.appLicense,
+		"url":          cfg.Drone.Dji.url,
+		"GatewaySn":    cfg.Drone.Dji.GatewaySn,
+		"DjiWebsocket": cfg.Drone.Dji.DjiWebsocket,
+		"DockSn":       cfg.Drone.Dji.DockSn,
+		"ClientId":     cfg.Drone.Dji.ClientId,
+	}
 
-var DjiSettings = map[string]string{
-	"appId":        cfg.Drone.Dji.appId,
-	"appKey":       cfg.Drone.Dji.appKey,
-	"appLicense":   cfg.Drone.Dji.appLicense,
-	"url":          cfg.Drone.Dji.url,
-	"GatewaySn":    cfg.Drone.Dji.GatewaySn,
-	"DjiWebsocket": cfg.Drone.Dji.DjiWebsocket,
-	"DockSn":       cfg.Drone.Dji.DockSn,
-	"ClientId":     cfg.Drone.Dji.ClientId,
-}
+	MMCSettings = map[string]string{
+		"appId":        cfg.Drone.MMC.appId,
+		"appKey":       cfg.Drone.MMC.appKey,
+		"appLicense":   cfg.Drone.MMC.appLicense,
+		"url":          cfg.Drone.MMC.url,
+		"GatewaySn":    cfg.Drone.MMC.GatewaySn,
+		"DjiWebsocket": cfg.Drone.MMC.DjiWebsocket,
+		"DockSn":       cfg.Drone.MMC.DockSn,
+		"ClientId":     cfg.Drone.MMC.ClientId,
+	}
 
-var MMCSettings = map[string]string{
-	"appId":        cfg.Drone.MMC.appId,
-	"appKey":       cfg.Drone.MMC.appKey,
-	"appLicense":   cfg.Drone.MMC.appLicense,
-	"url":          cfg.Drone.MMC.url,
-	"GatewaySn":    cfg.Drone.MMC.GatewaySn,
-	"DjiWebsocket": cfg.Drone.MMC.DjiWebsocket,
-	"DockSn":       cfg.Drone.MMC.DockSn,
-	"ClientId":     cfg.Drone.MMC.ClientId,
-}
+	XAGSettings = map[string]string{
+		"appId":        cfg.Drone.XAG.appId,
+		"appKey":       cfg.Drone.XAG.appKey,
+		"appLicense":   cfg.Drone.XAG.appLicense,
+		"url":          cfg.Drone.XAG.url,
+		"GatewaySn":    cfg.Drone.XAG.GatewaySn,
+		"DjiWebsocket": cfg.Drone.XAG.DjiWebsocket,
+		"DockSn":       cfg.Drone.XAG.DockSn,
+		"ClientId":     cfg.Drone.XAG.ClientId,
+	}
 
-var XAGSettings = map[string]string{
-	"appId":        cfg.Drone.XAG.appId,
-	"appKey":       cfg.Drone.XAG.appKey,
-	"appLicense":   cfg.Drone.XAG.appLicense,
-	"url":          cfg.Drone.XAG.url,
-	"GatewaySn":    cfg.Drone.XAG.GatewaySn,
-	"DjiWebsocket": cfg.Drone.XAG.DjiWebsocket,
-	"DockSn":       cfg.Drone.XAG.DockSn,
-	"ClientId":     cfg.Drone.XAG.ClientId,
-}
+	MqttSettings = map[string]string{
+		"host":     cfg.Mqtt.host,
+		"port":     cfg.Mqtt.port,
+		"username": cfg.Mqtt.username,
+		"password": cfg.Mqtt.password,
+	}
 
-var MqttSettings = map[string]string{
-	"host":     cfg.Mqtt.host,
-	"port":     cfg.Mqtt.port,
-	"username": cfg.Mqtt.username,
-	"password": cfg.Mqtt.password,
-}
+	DatabaseSettings = map[string]string{
+		"link": cfg.Database.Def.Link,
+	}
 
-var DatabaseSettings = map[string]string{
-	"link": cfg.Database.Def.Link,
-}
+	CKSettings = map[string]string{
+		"link": cfg.Database.CK.Link,
+	}
 
-var CKSettings = map[string]string{
-	"link": cfg.Database.CK.Link,
-}
+	RedisSettings = map[string]string{
+		"link": cfg.Database.Redis.Link,
+	}
 
-var RedisSettings = map[string]string{
-	"link": cfg.Database.Redis.Link,
-}
+	RtmpURLSettings = cfg.RtmpURL
 
-var RtmpURLSettings = cfg.RtmpURL
+	AmapKeySettings = cfg.AmapKey
 
-var AmapKeySettings = cfg.AmapKey
+	TokenExpiresInSettings = cfg.TokenExpiresIn
 
-var TokenExpiresInSettings = cfg.TokenExpiresIn
-
-var FH2Settings = map[string]string{
-	"host":     cfg.FH2.host,
-	"port":     cfg.FH2.port,
-	"q":        cfg.FH2.q,
-	"username": cfg.FH2.XUserToken,
+	FH2Settings = map[string]string{
+		"host":     cfg.FH2.host,
+		"port":     cfg.FH2.port,
+		"q":        cfg.FH2.q,
+		"username": cfg.FH2.XUserToken,
+	}
 }

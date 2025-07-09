@@ -10,8 +10,10 @@ type FH2DroneAdapter interface {
 	GetprojectList() (string, error)
 	// 获取项目下的设备列表
 	GetDeviceList(projectUuid string) (string, error)
+	// 获取设备HMS信息
+	GetDeviceHms(projectUuid string, deviceSnList string) (string, error)
 	// 获取设备物模型信息
-	GetStsToken(projectUuid string) (string, error)
+	GetStsToken(projectUuid string, deviceSn string) (string, error)
 	// 航线上传
 	SetFinishUpload(projectUuid string, objectKeyPrefix string, fileName string) (string, error)
 	// 创建飞行任务

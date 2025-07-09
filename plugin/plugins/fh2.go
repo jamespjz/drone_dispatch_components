@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"context"
 	"fmt"
 	"gitee.com/jamespi/drone_dispatch/config"
 	"gitee.com/jamespi/drone_dispatch/plugin"
@@ -25,91 +26,53 @@ func NewFH2Adapter() *FH2Adapter {
 	}
 }
 
-// 获取组织下的项目列表
-func (F *FH2Adapter) GetprojectList() (string, error) {
-	url := config.FH2Settings["host"] + "/openapi/v0.1/project?page=1&page_size=10&q=" + config.FH2Settings["q"] + "&prj_authorized_status=project-status-authorized&usage=simple&sort_column=created_at&sort_type=ASC"
-	method := "GET"
-	req, err := http.NewRequest(method, url, nil)
+func (F *FH2Adapter) doRequest(ctx context.Context, method, url string, body io.Reader, projectUUID string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
-		return "", fmt.Errorf("创建请求失败: %v", err)
+		return nil, err
 	}
 	// 设置请求头
 	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
-	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
-
+	req.Header.Add("X-User-Token", config.FH2Settings["xUserToken"])
+	if projectUUID != "" {
+		req.Header.Add("X-Project-Uuid", projectUUID)
+	}
 	res, err := F.Client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("请求失败: %v", err)
+		return nil, err
 	}
 	defer res.Body.Close()
+	return io.ReadAll(res.Body)
+}
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("读取响应失败: %v", err)
-	}
-
-	return string(body), nil
+// 获取组织下的项目列表
+func (F *FH2Adapter) GetprojectList() (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/project?page=1&page_size=10&q=%s&prj_authorized_status=project-status-authorized&usage=simple&sort_column=created_at&sort_type=ASC", config.FH2Settings["host"], config.FH2Settings["q"])
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, "")
+	return string(resp), err
 }
 
 // 获取项目下的设备列表
 func (F *FH2Adapter) GetDeviceList(projectUuid string) (string, error) {
-	url := config.FH2Settings["host"] + "/openapi/v0.1/project/device"
-	method := "GET"
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return "", fmt.Errorf("创建请求失败: %v", err)
-	}
-	// 设置请求头
-	req.Header.Add("X-Request-Id", uuid.New().String())
-	req.Header.Add("X-Language", "zh")
-	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
-	req.Header.Add("X-Project-Uuid", projectUuid)
-
-	res, err := F.Client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("请求失败: %v", err)
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("读取响应失败: %v", err)
-	}
-
-	return string(body), nil
+	url := fmt.Sprintf("%s/openapi/v0.1/project/device", config.FH2Settings["host"])
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
 }
 
 // 获取设备物模型信息
-func (F *FH2Adapter) GetStsToken(projectUuid string) (string, error) {
-	url := config.FH2Settings["host"] + "/openapi/v0.1/sts/token"
-	method := "GET"
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return "", fmt.Errorf("创建请求失败: %v", err)
-	}
-	// 设置请求头
-	req.Header.Add("X-Request-Id", uuid.New().String())
-	req.Header.Add("X-Language", "zh")
-	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
-	req.Header.Add("X-Project-Uuid", projectUuid)
-
-	res, err := F.Client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("请求失败: %v", err)
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("读取响应失败: %v", err)
-	}
-
-	return string(body), nil
-
+func (F *FH2Adapter) GetStsToken(projectUuid string, deviceSn string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/device/%s/state", config.FH2Settings["host"], deviceSn)
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
 }
 
 // 获取设备HMS信息
+func (F *FH2Adapter) GetDeviceHms(projectUuid string, deviceSnList string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/device/hms", config.FH2Settings["host"])
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, strings.NewReader(deviceSnList), projectUuid)
+	return string(resp), err
+}
 
 // 获取设备控制权
 
@@ -127,65 +90,17 @@ func (F *FH2Adapter) GetStsToken(projectUuid string) (string, error) {
 
 // 航线上传
 func (F *FH2Adapter) SetFinishUpload(projectUuid string, objectKeyPrefix string, fileName string) (string, error) {
-	url := config.FH2Settings["host"] + "/openapi/v0.1/wayline/finish-upload"
-	method := "POST"
-	payload := strings.NewReader(fmt.Sprintf(`{
-    "name": "%s",
-    "object_key": "%s"
-}`, fileName, objectKeyPrefix))
-	req, err := http.NewRequest(method, url, payload)
-	if err != nil {
-		return "", fmt.Errorf("创建请求失败: %v", err)
-	}
-	// 设置请求头
-	req.Header.Add("X-Request-Id", uuid.New().String())
-	req.Header.Add("X-Language", "zh")
-	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
-	req.Header.Add("X-Project-Uuid", projectUuid)
-
-	res, err := F.Client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("请求失败: %v", err)
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("读取响应失败: %v", err)
-	}
-
-	return string(body), nil
-
+	url := fmt.Sprintf("%s/openapi/v0.1/wayline/finish-upload", config.FH2Settings["host"])
+	payload := strings.NewReader(fmt.Sprintf(`{"name":"%s","object_key":"%s"}`, fileName, objectKeyPrefix))
+	resp, err := F.doRequest(context.Background(), http.MethodPost, url, payload, projectUuid)
+	return string(resp), err
 }
 
 // 创建飞行任务
 func (F *FH2Adapter) CreateFlightTask(projectUuid string, payLoad string) (string, error) {
-	url := config.FH2Settings["host"] + "/openapi/v0.1/flight-task"
-	method := "POST"
-	payload := strings.NewReader(fmt.Sprintf(`"%s"`, payLoad))
-	req, err := http.NewRequest(method, url, payload)
-	if err != nil {
-		return "", fmt.Errorf("创建请求失败: %v", err)
-	}
-	// 设置请求头
-	req.Header.Add("X-Request-Id", uuid.New().String())
-	req.Header.Add("X-Language", "zh")
-	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
-	req.Header.Add("X-Project-Uuid", projectUuid)
-
-	res, err := F.Client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("请求失败: %v", err)
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("读取响应失败: %v", err)
-	}
-
-	return string(body), nil
-
+	url := fmt.Sprintf("%s/openapi/v0.1/flight-task", config.FH2Settings["host"])
+	resp, err := F.doRequest(context.Background(), http.MethodPost, url, strings.NewReader(payLoad), projectUuid)
+	return string(resp), err
 }
 
 // 更新飞行状态
@@ -200,60 +115,16 @@ func (F *FH2Adapter) CreateFlightTask(projectUuid string, payLoad string) (strin
 
 // 获取项目下航线列表
 func (F *FH2Adapter) GetWayLine(projectUuid string) (string, error) {
-	url := config.FH2Settings["host"] + "/openapi/v0.1/wayline"
-	method := "GET"
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return "", fmt.Errorf("创建请求失败: %v", err)
-	}
-	// 设置请求头
-	req.Header.Add("X-Request-Id", uuid.New().String())
-	req.Header.Add("X-Language", "zh")
-	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
-	req.Header.Add("X-Project-Uuid", projectUuid)
-
-	res, err := F.Client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("请求失败: %v", err)
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("读取响应失败: %v", err)
-	}
-
-	return string(body), nil
-
+	url := fmt.Sprintf("%s/openapi/v0.1/wayline", config.FH2Settings["host"])
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
 }
 
 // 获取项目下的航线详情
 func (F *FH2Adapter) GetWayLineInfo(projectUuid string, wayLineUuid string) (string, error) {
-	url := config.FH2Settings["host"] + "/openapi/v0.1/wayline/" + wayLineUuid
-	method := "GET"
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return "", fmt.Errorf("创建请求失败: %v", err)
-	}
-	// 设置请求头
-	req.Header.Add("X-Request-Id", uuid.New().String())
-	req.Header.Add("X-Language", "zh")
-	req.Header.Add("X-User-Token", config.FH2Settings["user_token"])
-	req.Header.Add("X-Project-Uuid", projectUuid)
-
-	res, err := F.Client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("请求失败: %v", err)
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", fmt.Errorf("读取响应失败: %v", err)
-	}
-
-	return string(body), nil
-
+	url := fmt.Sprintf("%s/openapi/v0.1/wayline/%s", config.FH2Settings["host"], wayLineUuid)
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
 }
 
 // 实例化 FH2Adapter 并注册到插件系统（自动注册）

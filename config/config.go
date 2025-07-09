@@ -6,54 +6,53 @@ import (
 )
 
 type Config struct {
-	Drone          *Drone      `yaml:"drone"`
-	Mqtt           *MqttConfig `yaml:"Mqtt"`
-	Database       *Database   `yaml:"Database"`
-	RtmpURL        string      `yaml:"RtmpURL"`
-	AmapKey        string      `yaml:"AmapKey"`
-	TokenExpiresIn int         `yaml:"TokenExpiresIn"`
-	FH2            *FH2        `yaml:"FH"`
+	Drone          *Drone      `mapstructure:"Drone"`
+	Mqtt           *MqttConfig `mapstructure:"Mqtt"`
+	Database       *Database   `mapstructure:"Database"`
+	RtmpURL        string      `mapstructure:"RtmpURL"`
+	AmapKey        string      `mapstructure:"AmapKey"`
+	TokenExpiresIn int         `mapstructure:"TokenExpiresIn"`
+	FH2            *FH2        `mapstructure:"FH"`
 }
 
 type Drone struct {
-	Dji *UAV `yaml:"Dji"`
-	MMC *UAV `yaml:"MMC"`
-	XAG *UAV `yaml:"XAG"`
+	Dji *UAV `mapstructure:"Dji"`
+	MMC *UAV `mapstructure:"MMC"`
+	XAG *UAV `mapstructure:"XAG"`
 }
 
 type UAV struct {
-	AppId        string `yaml:"appId"`
-	AppKey       string `yaml:"appKey"`
-	AppLicense   string `yaml:"appLicense"`
-	Url          string `yaml:"url"`
-	GatewaySn    string `yaml:"GatewaySn"`    //网关序列号
-	DjiWebsocket string `yaml:"DjiWebsocket"` //websocket地址
-	DockSn       string `yaml:"DockSn"`       //机场序列号
-	ClientId     string `yaml:"ClientId"`     //客户端ID
+	AppId        string `mapstructure:"appId"`
+	AppKey       string `mapstructure:"appKey"`
+	AppLicense   string `mapstructure:"appLicense"`
+	Url          string `mapstructure:"url"`
+	GatewaySn    string `mapstructure:"GatewaySn"`    //网关序列号
+	DjiWebsocket string `mapstructure:"DjiWebsocket"` //websocket地址
+	DockSn       string `mapstructure:"DockSn"`       //机场序列号
+	ClientId     string `mapstructure:"ClientId"`     //客户端ID
 }
 
 type MqttConfig struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Host     string `mapstructure:"host"`
+	Port     string `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
 }
 
 type Database struct {
-	Def   *Def `yaml:"default"`
-	CK    *Def `yaml:"clickhouse"`
-	Redis *Def `yaml:"redis"`
+	Def   *Def `mapstructure:"default"`
+	CK    *Def `mapstructure:"clickhouse"`
+	Redis *Def `mapstructure:"redis"`
 }
 
 type Def struct {
-	Link string `yaml:"link"`
+	Link string `mapstructure:"link"`
 }
 
 type FH2 struct {
-	Host       string `yaml:"host"`
-	Port       string `yaml:"port"`
-	Q          string `yaml:"q"`
-	XUserToken string `yaml:"xUserToken"`
+	Host       string `mapstructure:"host"`
+	Q          string `mapstructure:"q"`
+	XUserToken string `mapstructure:"xUserToken"`
 }
 
 var cfg Config
@@ -177,11 +176,9 @@ func init() {
 	if cfg.TokenExpiresIn > 0 {
 		TokenExpiresInSettings = cfg.TokenExpiresIn
 	}
-
 	if cfg.FH2 != nil {
 		FH2Settings = map[string]string{
 			"host":       cfg.FH2.Host,
-			"port":       cfg.FH2.Port,
 			"q":          cfg.FH2.Q,
 			"xUserToken": cfg.FH2.XUserToken,
 		}

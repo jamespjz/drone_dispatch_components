@@ -91,8 +91,6 @@ type DJIDock2DroneAdapter interface {
 	/**  mqtt相关  **/
 	//是否支持MQTT
 	SupportsMqtt() bool
-	// 发布消息到MQTT主题
-	Subscribe(topic string, callback func(message string)) error
 	/**  图传  **/
 	// 获取图传流地址
 	GetLiveStreamURL() (string, error)

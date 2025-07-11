@@ -6,15 +6,18 @@ import (
 	"gitee.com/jamespi/drone_dispatch/config"
 	"gitee.com/jamespi/drone_dispatch/plugin"
 	"gitee.com/jamespi/drone_dispatch/service"
-	mqtt "github.com/eclipse/paho.mqtt.golang"
+	mq_plugin "gitee.com/jamespi/message_queue/plugin"
+	_ "gitee.com/jamespi/message_queue/plugins/mqtt"
+	mq_service "gitee.com/jamespi/message_queue/service"
 	"log"
+	"reflect"
 	"sync"
 	"time"
 )
 
 // DJI dock 2 适配器
 type DJIDock2Adapter struct {
-	Client        mqtt.Client
+	Client        mq_service.ClientAdapter
 	AccessToken   string           // 访问令牌
 	GateWaySn     string           // 网关序列号
 	Mutex         sync.RWMutex     // 互斥锁，确保线程安全
@@ -36,54 +39,47 @@ type InitParams struct {
 }
 
 /**  鉴权  **/
-func InitializationDJIDock2Adapter(params InitParams) (djiDock2Adapter *DJIDock2Adapter, err error) {
-
-	opts := mqtt.NewClientOptions(). // 设置MQTT客户端选项
-						AddBroker(params.MqttHost).   // 添加MQTT代理地址
-						SetProtocolVersion(4).        // 设置MQTT协议版本
-						SetClientID(params.ClientId). // 设置客户端ID
-						SetUsername(params.UserName). // 设置认证用户名
-						SetPassword(params.Password). // 设置认证密码
-						SetAutoReconnect(true).       // 启用断线自动重连
-						SetCleanSession(true)         // 设置清除会话模式
-
-	client := mqtt.NewClient(opts) // 创建新的MQTT客户端
-
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		return nil, token.Error() // 如果连接失败，返回错误
-	}
-
-	djiDock2Adapter = &DJIDock2Adapter{
-		Client:      client,
+func InitializationDJIDock2Adapter(params InitParams) (*DJIDock2Adapter, error) {
+	// 创建 DJIDock2Adapter 实例
+	djiDock2Adapter := &DJIDock2Adapter{
 		AccessToken: params.AccessToken,
 		GateWaySn:   params.GateWaySn,
 		DockSn:      params.DockSn,
 	}
 
-	// 订阅数传OSD
-	if err := djiDock2Adapter.subscribeOSD(); err != nil {
+	// 获取 MQTT 客户端
+	client, ok := mq_plugin.Get[mq_service.ClientAdapter](mq_plugin.MQTTPlugin)
+	if !ok {
+		return nil, fmt.Errorf("获取MQTT客户端适配器失败，请检查插件是否启用")
+	}
+
+	// 设置客户端
+	djiDock2Adapter.Client = client
+
+	// 订阅数传OSD主题
+	osdTopic := fmt.Sprintf("thing/product/%s/services/osd", params.DockSn)
+	log.Printf("正在订阅OSD主题: %s", osdTopic)
+	err := client.Subscribe(osdTopic, func(msg []byte) {
+		var osd service.DroneOSD
+		if err := json.Unmarshal(msg, &osd); err != nil {
+			log.Printf("解析OSD数据失败: %v", err)
+			return
+		}
+		// 锁定互斥锁，更新最新OSD数据
+		djiDock2Adapter.Mutex.Lock()
+		djiDock2Adapter.latestOSD = osd
+		djiDock2Adapter.Mutex.Unlock()
+
+		djiDock2Adapter.osdSubscribed = true
+		log.Printf("收到OSD数据: %+v", osd)
+	})
+	if err != nil {
+		log.Printf("订阅OSD主题失败: %v", err)
 		return nil, fmt.Errorf("订阅数传OSD失败: %w", err)
 	}
+	log.Printf("订阅OSD主题成功")
 
 	return djiDock2Adapter, nil
-}
-
-// 订阅数传OSD
-func (d *DJIDock2Adapter) subscribeOSD() error {
-	topic := fmt.Sprintf("thing/product/%s/services/osd", d.DockSn) // 构建OSD主题
-	token := d.Client.Subscribe(topic, 1, func(client mqtt.Client, msg mqtt.Message) {
-		var osd service.DroneOSD
-		if err := json.Unmarshal(msg.Payload(), &osd); err != nil {
-			d.Mutex.Lock()    // 锁定互斥锁
-			d.latestOSD = osd // 更新最新OSD数据
-			d.Mutex.Unlock()  // 解锁互斥锁
-		}
-	})
-	if token.Wait() && token.Error() != nil {
-		return token.Error() // 如果订阅失败，返回错误
-	}
-	d.osdSubscribed = true // 标记已订阅OSD主题
-	return nil
 }
 
 /**  无人机业务  **/
@@ -102,17 +98,28 @@ func (d *DJIDock2Adapter) AirportOrganizationBind() (bool, error) {
 // 一键起飞
 func (d *DJIDock2Adapter) TakeOff() (string, error) {
 	request := map[string]interface{}{
-		"method":      "takeoff_to_point",
-		"params":      map[string]string{"sn": d.GateWaySn},
-		"timestamp":   time.Now().UnixMilli(),
+		"method": "takeoff_to_point",
+		"params": map[string]interface{}{
+			"sn":        d.GateWaySn,
+			"timestamp": time.Now().UnixMilli(),
+		},
 		"clientToken": d.AccessToken,
 	}
-	// 发送一键起飞命令到MQTT主题
-	topic := fmt.Sprintf("thing/product/%s/services/takeoff", d.GateWaySn)
-	payload, _ := json.Marshal(request)
-	token := d.Client.Publish(topic, 1, false, payload)
-	token.Wait()                          // 等待消息发送完成
-	return string(payload), token.Error() // 返回发送结果或错误信息
+
+	// 使用标准的主题格式
+	topic := fmt.Sprintf("thing/product/%s/drone/takeoff", d.GateWaySn)
+	payload, err := json.Marshal(request)
+	if err != nil {
+		return "", fmt.Errorf("序列化请求数据失败: %w", err)
+	}
+
+	log.Printf("正在发送起飞命令到主题: %s, 消息内容: %s", topic, string(payload))
+	err = d.Client.Publish(topic, payload)
+	if err != nil {
+		return "", fmt.Errorf("发送起飞命令失败: %w", err)
+	}
+
+	return string(payload), nil
 }
 
 // 一键起飞结果事件通知
@@ -131,11 +138,17 @@ func (d *DJIDock2Adapter) Land() (string, error) {
 	}
 	// 发送一键降落命令到MQTT主题
 	topic := fmt.Sprintf("thing/product/%s/services/land", d.DockSn)
-	payload, _ := json.Marshal(request)
-	token := d.Client.Publish(topic, 1, false, payload)
-	token.Wait() // 等待消息发送完成
+	payload, err := json.Marshal(request)
+	if err != nil {
+		return "", fmt.Errorf("序列化请求数据失败: %w", err)
+	}
 
-	return string(payload), token.Error() // 返回发送结果或错误信息
+	err = d.Client.Publish(topic, payload)
+	if err != nil {
+		return "", fmt.Errorf("发送起飞命令失败: %w", err)
+	}
+
+	return string(payload), nil
 }
 
 // 一键降落结果事件通知
@@ -337,13 +350,6 @@ func (d *DJIDock2Adapter) SupportsMqtt() bool {
 	return true
 }
 
-// 发布消息到MQTT主题
-func (d *DJIDock2Adapter) Subscribe(topic string, callback func(message string)) error {
-	return d.Client.Subscribe(topic, 1, func(client mqtt.Client, msg mqtt.Message) {
-		callback(string(msg.Payload()))
-	}).Error()
-}
-
 /**  图传相关业务  **/
 func (d *DJIDock2Adapter) GetLiveStreamURL() (string, error) {
 
@@ -355,25 +361,25 @@ func (d *DJIDock2Adapter) GetLiveStreamURL() (string, error) {
 func init() {
 	//从配置获取参数
 	//tm := plugin.NewTokenManager("dji_dock2")
-	//params := InitParams{
-	//	AccessToken: tm.GetAccessToken(),                                                        // 获取访问令牌
-	//	GateWaySn:   config.DjiSettings["GatewaySn"],                                            // 获取网关序列号
-	//	DockSn:      config.DjiSettings["DockSn"],                                               // 获取机场序列号
-	//	ClientId:    config.DjiSettings["ClientId"],                                             // 获取客户端ID
-	//	MqttHost:    "tcp://" + config.MqttSettings["host"] + ":" + config.MqttSettings["port"], // 获取MQTT主机地址
-	//	UserName:    config.MqttSettings["username"],                                            // 获取MQTT用户名
-	//	Password:    config.MqttSettings["password"],                                            // 获取MQTT密码
-	//}
-	//// 设置令牌
+	params := InitParams{
+		//AccessToken: tm.GetAccessToken(),                                                        // 获取访问令牌
+		GateWaySn: config.DjiSettings["GatewaySn"],                                            // 获取网关序列号
+		DockSn:    config.DjiSettings["DockSn"],                                               // 获取机场序列号
+		ClientId:  config.DjiSettings["ClientId"],                                             // 获取客户端ID
+		MqttHost:  "tcp://" + config.MqttSettings["host"] + ":" + config.MqttSettings["port"], // 获取MQTT主机地址
+		UserName:  config.MqttSettings["username"],                                            // 获取MQTT用户名
+		Password:  config.MqttSettings["password"],                                            // 获取MQTT密码
+	}
+	// 设置令牌
 	//tm.SetAccessToken(params.AccessToken, "", config.TokenExpiresInSettings) // 设置访问令牌，刷新令牌和过期时间
-	//adapter, err := InitializationDJIDock2Adapter(params)
-	//if err != nil {
-	//	log.Fatalf("DJI Dock2初始化失败: %v", err)
-	//}
-	//// 启动令牌刷新协程
+	adapter, err := InitializationDJIDock2Adapter(params)
+	if err != nil {
+		log.Fatalf("DJI Dock2初始化失败: %v", err)
+	}
+	// 启动令牌刷新协程
 	//go adapter.startTokenRefreshScheduler(tm)
 	// 注册 DJI Dock2 适配器
-	//plugin.RegisterPlugin(plugin.DJIDock2Plugin, reflect.TypeOf((*service.DJIDock2DroneAdapter)(nil)).Elem(), adapter)
+	plugin.RegisterPlugin(plugin.DJIDock2Plugin, reflect.TypeOf((*service.DJIDock2DroneAdapter)(nil)).Elem(), adapter)
 }
 
 // 令牌刷新调度器

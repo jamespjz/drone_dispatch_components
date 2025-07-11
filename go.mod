@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	gitee.com/jamespi/message_queue v0.0.0-20250711025655-4fa42404c96f // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect

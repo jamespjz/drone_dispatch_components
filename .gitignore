@@ -9,6 +9,8 @@ bin-release/
 
 config.yaml
 
+main.go
+
 go.sum
 
 # Executables

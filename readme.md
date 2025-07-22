@@ -1,6 +1,9 @@
 ## 插件说明
 - [lecheng-drone](https://gitee.com/jamespi/lecheng-drone) - 这是一个无人机控制的核心库，提供了无人机的基本操作接口。
 - 插件调用：go get gitee.com/jamespi/drone_dispatch@v0.1.1
+- 整体插件采用六边形架构思想构建
+  - 架构图![架构图](2.jpg)
+- dji_dock2插件业务架构图![架构图](1.png)
 
 ## 插件调用示例
 

@@ -53,6 +53,13 @@ func (F *FH2Adapter) GetprojectList() (string, error) {
 	return string(resp), err
 }
 
+// 获取项目的存储上传凭证
+func (F *FH2Adapter) GetProjectStsToken(projectUuid string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/project/storage/oss/sts-token", config.FH2Settings["host"])
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
+}
+
 // 获取项目下的设备列表
 func (F *FH2Adapter) GetDeviceList(projectUuid string) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/project/device", config.FH2Settings["host"])

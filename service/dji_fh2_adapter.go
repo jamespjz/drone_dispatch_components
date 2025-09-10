@@ -18,6 +18,14 @@ type FH2DroneAdapter interface {
 	GetStsToken(projectUuid string, deviceSn string) (string, error)
 	// 航线上传
 	SetFinishUpload(projectUuid string, objectKeyPrefix string, fileName string) (string, error)
+	// 获取飞行任务列表
+	GetFlightTask(projectUuid string, sn string, name string, begin_at int, end_at int, task_type string, status string) (string, error)
+	// 获取飞行任务产生的媒体资源
+	GetFlightTaskMedia(projectUuid string, task_uuid string) (string, error)
+	// 获取飞行任务轨迹信息
+	GetFlightTaskTrack(projectUuid string, task_uuid string) (string, error)
+	// 获取飞行任务信息
+	GetFlightTaskInfo(projectUuid string, task_uuid string) (string, error)
 	// 创建飞行任务
 	CreateFlightTask(projectUuid string, payLoad string) (string, error)
 	// 获取项目下航线列表

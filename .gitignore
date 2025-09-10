@@ -13,6 +13,8 @@ main.go
 
 go.sum
 
+.idea
+
 # Executables
 *.swf
 *.air

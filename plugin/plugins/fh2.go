@@ -113,12 +113,32 @@ func (F *FH2Adapter) CreateFlightTask(projectUuid string, payLoad string) (strin
 // 更新飞行状态
 
 // 获取飞行任务轨迹信息
+func (F *FH2Adapter) GetFlightTaskTrack(projectUuid string, task_uuid string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/flight-task/%s/track", config.FH2Settings["host"], task_uuid)
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
+}
 
 // 获取飞行任务产生的媒体资源
+func (F *FH2Adapter) GetFlightTaskMedia(projectUuid string, task_uuid string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/flight-task/%s/media", config.FH2Settings["host"], task_uuid)
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
+}
 
 // 获取飞行任务信息
+func (F *FH2Adapter) GetFlightTaskInfo(projectUuid string, task_uuid string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/flight-task/%s", config.FH2Settings["host"], task_uuid)
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
+}
 
 // 获取飞行任务列表
+func (F *FH2Adapter) GetFlightTask(projectUuid string, sn string, name string, begin_at int, end_at int, task_type string, status string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/flight-task/list?sn=%s&name=%s&begin_at=%d&end_at=%d&task_type=%s&status=%s", config.FH2Settings["host"], sn, name, begin_at, end_at, task_type, status)
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
+}
 
 // 获取项目下航线列表
 func (F *FH2Adapter) GetWayLine(projectUuid string) (string, error) {

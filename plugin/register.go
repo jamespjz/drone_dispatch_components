@@ -75,6 +75,7 @@ func Unload(pluginType PluginType) {
 func Get[T interface{}](pluginType PluginType) (T, bool) {
 	registry.mu.RLock()
 	defer registry.mu.RUnlock()
+	// 泛型参数T的类型实例化
 	var plugin T
 	ifaceType := reflect.TypeOf(&plugin).Elem()
 	if impl, ok := registry.Plugins[pluginType][ifaceType]; ok {

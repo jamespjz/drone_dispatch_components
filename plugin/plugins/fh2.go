@@ -55,7 +55,7 @@ func (F *FH2Adapter) GetprojectList() (string, error) {
 
 // 获取项目的存储上传凭证
 func (F *FH2Adapter) GetProjectStsToken(projectUuid string) (string, error) {
-	url := fmt.Sprintf("%s/openapi/v0.1/project/storage/oss/sts-token", config.FH2Settings["host"])
+	url := fmt.Sprintf("%s/openapi/v0.1/project/sts-token", config.FH2Settings["host"])
 	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
 	return string(resp), err
 }
@@ -119,13 +119,6 @@ func (F *FH2Adapter) GetFlightTaskTrack(projectUuid string, task_uuid string) (s
 	return string(resp), err
 }
 
-// 获取飞行任务产生的媒体资源
-func (F *FH2Adapter) GetFlightTaskMedia(projectUuid string, task_uuid string) (string, error) {
-	url := fmt.Sprintf("%s/openapi/v0.1/flight-task/%s/media", config.FH2Settings["host"], task_uuid)
-	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
-	return string(resp), err
-}
-
 // 获取飞行任务信息
 func (F *FH2Adapter) GetFlightTaskInfo(projectUuid string, task_uuid string) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/flight-task/%s", config.FH2Settings["host"], task_uuid)
@@ -136,6 +129,13 @@ func (F *FH2Adapter) GetFlightTaskInfo(projectUuid string, task_uuid string) (st
 // 获取飞行任务列表
 func (F *FH2Adapter) GetFlightTask(projectUuid string, sn string, name string, begin_at int, end_at int, task_type string, status string) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/flight-task/list?sn=%s&name=%s&begin_at=%d&end_at=%d&task_type=%s&status=%s", config.FH2Settings["host"], sn, name, begin_at, end_at, task_type, status)
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
+}
+
+// 获取飞行任务产生的媒体资源
+func (F *FH2Adapter) GetFlightTaskMedia(projectUuid string, task_uuid string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/flight-task/%s/media", config.FH2Settings["host"], task_uuid)
 	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
 	return string(resp), err
 }

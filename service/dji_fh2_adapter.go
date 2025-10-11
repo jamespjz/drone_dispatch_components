@@ -20,6 +20,8 @@ type FH2DroneAdapter interface {
 	GetFlightTask(projectUuid string, sn string, name string, begin_at int, end_at int, task_type string, status string) (string, error)
 	// 获取飞行任务产生的媒体资源
 	GetFlightTaskMedia(projectUuid string, task_uuid string) (string, error)
+	// 开启直播
+	LiveStreamStart(projectUuid string, payLoad string) (string, error)
 	// 获取飞行任务轨迹信息
 	GetFlightTaskTrack(projectUuid string, task_uuid string) (string, error)
 	// 获取飞行任务信息

@@ -140,6 +140,13 @@ func (F *FH2Adapter) GetFlightTaskMedia(projectUuid string, task_uuid string) (s
 	return string(resp), err
 }
 
+// 开启直播
+func (F *FH2Adapter) LiveStreamStart(projectUuid string, payLoad string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/live-stream/start", config.FH2Settings["host"])
+	resp, err := F.doRequest(context.Background(), http.MethodPost, url, strings.NewReader(payLoad), projectUuid)
+	return string(resp), err
+}
+
 // 获取项目下航线列表
 func (F *FH2Adapter) GetWayLine(projectUuid string) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/wayline", config.FH2Settings["host"])

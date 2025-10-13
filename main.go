@@ -10,7 +10,7 @@ import (
 func main() {
 	// 司空2调用
 	// 启用指定插件
-	plugin.LoadEnableList([]string{"fh2", "dji_dock2"})
+	plugin.LoadEnableList([]string{"fh2"})
 	//	// 获取并使用
 	//	if fh2, ok := plugin.Get[service.FH2DroneAdapter](plugin.FH2Plugin); ok {
 	//		// 调用适配器方法

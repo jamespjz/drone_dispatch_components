@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"gitee.com/jamespi/drone_dispatch/config"
 	"gitee.com/jamespi/drone_dispatch/plugin"
@@ -26,6 +27,13 @@ func NewFH2Adapter() *FH2Adapter {
 	}
 }
 
+// 定义与API响应对应的结构体
+type APIResponse struct {
+	Code    int             `json:"code"`
+	Message string          `json:"message"`
+	Data    json.RawMessage `json:"data"`
+}
+
 func (F *FH2Adapter) doRequest(ctx context.Context, method, url string, body io.Reader, projectUUID string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
@@ -43,7 +51,26 @@ func (F *FH2Adapter) doRequest(ctx context.Context, method, url string, body io.
 		return nil, err
 	}
 	defer res.Body.Close()
-	return io.ReadAll(res.Body)
+	//return io.ReadAll(res.Body)
+	// 读取响应体
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("读取响应体失败: %w", err)
+	}
+
+	// 解析JSON并检查业务状态码
+	var apiResp APIResponse
+	if err := json.Unmarshal(bodyBytes, &apiResp); err != nil {
+		return nil, fmt.Errorf("解析响应JSON失败: %w", err)
+	}
+
+	// 检查业务代码，如果大于0表示错误
+	if apiResp.Code > 0 {
+		return nil, fmt.Errorf("API错误[%d]: %s", apiResp.Code, apiResp.Message)
+	}
+
+	// 业务代码为0或负数表示成功，返回原始响应体
+	return bodyBytes, nil
 }
 
 // 获取组织下的项目列表

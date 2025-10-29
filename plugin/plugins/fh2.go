@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"io"
 	"net/http"
+	"net/url"
 	"reflect"
 	"strings"
 )
@@ -75,7 +76,8 @@ func (F *FH2Adapter) doRequest(ctx context.Context, method, url string, body io.
 
 // 获取组织下的项目列表
 func (F *FH2Adapter) GetprojectList() (string, error) {
-	url := fmt.Sprintf("%s/openapi/v0.1/project?page=1&page_size=10&q=%s&prj_authorized_status=project-status-authorized&usage=simple&sort_column=created_at&sort_type=ASC", config.FH2Settings["host"], config.FH2Settings["q"])
+	encodedQ := url.QueryEscape("东江牧歌")
+	url := fmt.Sprintf("%s/openapi/v0.1/project?page=1&page_size=10&q=%s&prj_authorized_status=project-status-authorized&usage=simple&sort_column=created_at&sort_type=ASC", config.FH2Settings["host"], encodedQ)
 	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, "")
 	return string(resp), err
 }

@@ -47,6 +47,7 @@ func (F *FH2Adapter) doRequest(ctx context.Context, method, url string, body io.
 	if projectUUID != "" {
 		req.Header.Add("X-Project-Uuid", projectUUID)
 	}
+
 	res, err := F.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -62,7 +63,7 @@ func (F *FH2Adapter) doRequest(ctx context.Context, method, url string, body io.
 	// 解析JSON并检查业务状态码
 	var apiResp APIResponse
 	if err := json.Unmarshal(bodyBytes, &apiResp); err != nil {
-		return nil, fmt.Errorf("解析响应JSON失败: %w", err)
+		return nil, fmt.Errorf("解析响应JSON失败: %w\n原始响应: %s", err, string(bodyBytes))
 	}
 
 	// 检查业务代码，如果大于0表示错误
@@ -76,7 +77,7 @@ func (F *FH2Adapter) doRequest(ctx context.Context, method, url string, body io.
 
 // 获取组织下的项目列表
 func (F *FH2Adapter) GetprojectList() (string, error) {
-	encodedQ := url.QueryEscape("东江牧歌")
+	encodedQ := url.QueryEscape(config.FH2Settings["q"])
 	url := fmt.Sprintf("%s/openapi/v0.1/project?page=1&page_size=10&q=%s&prj_authorized_status=project-status-authorized&usage=simple&sort_column=created_at&sort_type=ASC", config.FH2Settings["host"], encodedQ)
 	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, "")
 	return string(resp), err
@@ -105,8 +106,8 @@ func (F *FH2Adapter) GetStsToken(projectUuid string, deviceSn string) (string, e
 
 // 获取设备HMS信息
 func (F *FH2Adapter) GetDeviceHms(projectUuid string, deviceSnList string) (string, error) {
-	url := fmt.Sprintf("%s/openapi/v0.1/device/hms", config.FH2Settings["host"])
-	resp, err := F.doRequest(context.Background(), http.MethodGet, url, strings.NewReader(deviceSnList), projectUuid)
+	url := fmt.Sprintf("%s/openapi/v0.1/device/hms?device_sn_list=%s", config.FH2Settings["host"], deviceSnList)
+	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
 	return string(resp), err
 }
 

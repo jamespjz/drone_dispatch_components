@@ -12,6 +12,8 @@ type FH2DroneAdapter interface {
 	GetDeviceList(projectUuid string) (string, error)
 	// 获取设备HMS信息
 	GetDeviceHms(projectUuid string, deviceSnList string) (string, error)
+	// 获取项目的存储上传凭证
+	GetProjectStsToken(projectUuid string) (string, error)
 	// 获取设备物模型信息
 	GetStsToken(projectUuid string, deviceSn string) (string, error)
 	// 航线上传
@@ -32,4 +34,6 @@ type FH2DroneAdapter interface {
 	GetWayLine(projectUuid string) (string, error)
 	// 获取项目下的航线详情
 	GetWayLineInfo(projectUuid string, wayLineUuid string) (string, error)
+	// 模型重建
+	CreateModel(projectUuid string, payLoad string) (string, error)
 }

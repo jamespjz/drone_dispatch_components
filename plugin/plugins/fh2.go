@@ -106,7 +106,8 @@ func (F *FH2Adapter) GetStsToken(projectUuid string, deviceSn string) (string, e
 
 // 获取设备HMS信息
 func (F *FH2Adapter) GetDeviceHms(projectUuid string, deviceSnList string) (string, error) {
-	url := fmt.Sprintf("%s/openapi/v0.1/device/hms?device_sn_list=%s", config.FH2Settings["host"], deviceSnList)
+	encodedQ := url.QueryEscape(deviceSnList)
+	url := fmt.Sprintf("%s/openapi/v0.1/device/hms?device_sn_list=%s", config.FH2Settings["host"], encodedQ)
 	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
 	return string(resp), err
 }
@@ -134,6 +135,21 @@ func (F *FH2Adapter) SetFinishUpload(projectUuid string, objectKeyPrefix string,
 }
 
 // 创建飞行任务
+//
+//	payLoad := `{
+//			   "name": "测试任务",
+//			   "wayline_uuid": "6d88fbe5-a399-485a-86ba-7bbdbb99edec",
+//			   "sn": "7CTXN4A00B096H",
+//			   "rth_altitude": 80,
+//			   "rth_mode": "optimal",
+//			   "wayline_precision_type": "gps",
+//			   "out_of_control_action_in_flight": "return_home",
+//			   "resumable_status": "auto",
+//			   "task_type": "immediate",
+//			   "time_zone": "Asia/Shanghai",
+//			   "repeat_type": "nonrepeating",
+//			   "min_battery_capacity": 60
+//			}`
 func (F *FH2Adapter) CreateFlightTask(projectUuid string, payLoad string) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/flight-task", config.FH2Settings["host"])
 	resp, err := F.doRequest(context.Background(), http.MethodPost, url, strings.NewReader(payLoad), projectUuid)
@@ -188,6 +204,13 @@ func (F *FH2Adapter) GetWayLine(projectUuid string) (string, error) {
 func (F *FH2Adapter) GetWayLineInfo(projectUuid string, wayLineUuid string) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/wayline/%s", config.FH2Settings["host"], wayLineUuid)
 	resp, err := F.doRequest(context.Background(), http.MethodGet, url, nil, projectUuid)
+	return string(resp), err
+}
+
+// 模型重建
+func (F *FH2Adapter) CreateModel(projectUuid string, payLoad string) (string, error) {
+	url := fmt.Sprintf("%s/openapi/v0.1/model/create", config.FH2Settings["host"])
+	resp, err := F.doRequest(context.Background(), http.MethodPost, url, strings.NewReader(payLoad), projectUuid)
 	return string(resp), err
 }
 

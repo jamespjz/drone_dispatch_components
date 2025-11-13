@@ -13,19 +13,30 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 // 司空2适配器
 // 司空2openapi接口文档地址：https://apifox.com/apidoc/shared/6b4ca90b-233f-48ac-818c-d694acb0663a/api-221842037
 type FH2Adapter struct {
-	Client *http.Client
+	Client     *http.Client
+	xUserToken string
+	mu         sync.RWMutex // 并发线程安全
 }
 
 // NewFH2Adapter 创建一个新的FH2适配器
 func NewFH2Adapter() *FH2Adapter {
 	return &FH2Adapter{
-		Client: &http.Client{},
+		xUserToken: "",
+		Client:     &http.Client{},
 	}
+}
+
+// 添加设置token的方法
+func (f *FH2Adapter) SetUserToken(token string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.xUserToken = token
 }
 
 // 定义与API响应对应的结构体
@@ -43,7 +54,7 @@ func (F *FH2Adapter) doRequest(ctx context.Context, method, url string, body io.
 	// 设置请求头
 	req.Header.Add("X-Request-Id", uuid.New().String())
 	req.Header.Add("X-Language", "zh")
-	req.Header.Add("X-User-Token", config.FH2Settings["xUserToken"])
+	req.Header.Add("X-User-Token", F.xUserToken)
 	if projectUUID != "" {
 		req.Header.Add("X-Project-Uuid", projectUUID)
 	}

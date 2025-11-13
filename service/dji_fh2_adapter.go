@@ -6,6 +6,8 @@ package service
 type FH2DroneAdapter interface {
 	/**  司空2  **/
 	/**  无人机业务  **/
+	// 添加设置token的方法
+	SetUserToken(token string) error
 	// 获取组织下的项目列表
 	GetprojectList() (string, error)
 	// 获取项目下的设备列表

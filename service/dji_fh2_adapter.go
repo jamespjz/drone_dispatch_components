@@ -2,62 +2,63 @@
 
 package service
 
-import "io"
+import (
+	"context"
+	"io"
+)
 
 // 定义适配器接口
 type FH2DroneAdapter interface {
 	/**  司空2  **/
 	/**  无人机业务  **/
-	// 添加设置token的方法
-	SetUserToken(token string)
 	// 获取组织下的项目列表
-	GetprojectList() (string, error)
+	GetprojectList(ctx context.Context) (string, error)
 	// 获取项目下的设备列表
-	GetDeviceList(projectUuid string) (string, error)
+	GetDeviceList(ctx context.Context) (string, error)
 	// 获取项目的存储上传凭证
-	GetProjectStsToken(projectUuid string) (string, error)
+	GetProjectStsToken(ctx context.Context) (string, error)
 	// 获取设备物模型信息
-	GetStsToken(projectUuid string, deviceSn string) (string, error)
+	GetStsToken(ctx context.Context, deviceSn string) (string, error)
 	// 获取设备HMS信息
-	GetDeviceHms(projectUuid string, deviceSnList string) (string, error)
+	GetDeviceHms(ctx context.Context, deviceSnList string) (string, error)
 	// 实时控制指令下发
-	UpdateDeviceCommand(projectUuid string, deviceSn string, payLoad io.Reader) (string, error)
+	UpdateDeviceCommand(ctx context.Context, deviceSn string, payLoad io.Reader) (string, error)
 	// 机场相机切换
-	UpdateDeviceChangeCamera(projectUuid string, payLoad io.Reader) (string, error)
+	UpdateDeviceChangeCamera(ctx context.Context, payLoad io.Reader) (string, error)
 	// 设备飞行器镜头切换
-	UpdateDeviceChangeLens(projectUuid string, payLoad io.Reader) (string, error)
+	UpdateDeviceChangeLens(ctx context.Context, payLoad io.Reader) (string, error)
 	// 获取设备控制权
-	GetDeviceControl(projectUuid string, payLoad io.Reader) (string, error)
+	GetDeviceControl(ctx context.Context, payLoad io.Reader) (string, error)
 	// 设备控制权释放
-	DeleteDeviceControl(projectUuid string, payLoad io.Reader) (string, error)
+	DeleteDeviceControl(ctx context.Context, payLoad io.Reader) (string, error)
 	// 图传清晰度设置
-	UpdateDeviceStreamQuality(projectUuid string, payLoad io.Reader) (string, error)
+	UpdateDeviceStreamQuality(ctx context.Context, payLoad io.Reader) (string, error)
 	// 自定义网络RTK标定
-	CreateDeviceRTK(projectUuid string, deviceSn string, payLoad string) (string, error)
+	CreateDeviceRTK(ctx context.Context, deviceSn string, payLoad io.Reader) (string, error)
 	// 开启直播
-	LiveStreamStart(projectUuid string, payLoad string) (string, error)
+	LiveStreamStart(ctx context.Context, payLoad io.Reader) (string, error)
 	// 创建飞行任务
-	CreateFlightTask(projectUuid string, payLoad string) (string, error)
+	CreateFlightTask(ctx context.Context, payLoad io.Reader) (string, error)
 	// 更新飞行状态
-	UpdateFlightTaskStatus(projectUuid string, task_uuid string, payLoad io.Reader) (string, error)
+	UpdateFlightTaskStatus(ctx context.Context, taskUUID string, payLoad io.Reader) (string, error)
 	// 获取飞行任务信息
-	GetFlightTaskInfo(projectUuid string, task_uuid string) (string, error)
+	GetFlightTaskInfo(ctx context.Context, taskUUID string) (string, error)
 	// 获取飞行任务列表
-	GetFlightTask(projectUuid string, sn string, name string, begin_at int, end_at int, task_type string, status string) (string, error)
+	GetFlightTask(ctx context.Context, sn string, name string, beginAt int, endAt int, taskType string, status string) (string, error)
 	// 获取飞行任务产生的媒体资源
-	GetFlightTaskMedia(projectUuid string, task_uuid string) (string, error)
+	GetFlightTaskMedia(ctx context.Context, taskUUID string) (string, error)
 	// 获取飞行任务轨迹信息
-	GetFlightTaskTrack(projectUuid string, task_uuid string) (string, error)
+	GetFlightTaskTrack(ctx context.Context, taskUUID string) (string, error)
 	// 航线上传完成通知
-	SetFinishUpload(projectUuid string, objectKeyPrefix string, fileName string) (string, error)
+	SetFinishUpload(ctx context.Context, objectKeyPrefix string, fileName string) (string, error)
 	// 获取项目下航线列表
-	GetWayLine(projectUuid string) (string, error)
+	GetWayLine(ctx context.Context) (string, error)
 	// 获取项目下的航线详情
-	GetWayLineInfo(projectUuid string, wayLineUuid string) (string, error)
+	GetWayLineInfo(ctx context.Context, wayLineUuid string) (string, error)
 	// 模型重建
-	CreateModel(projectUuid string, payLoad string) (string, error)
+	CreateModel(ctx context.Context, payLoad io.Reader) (string, error)
 	// 获取模型详情
-	GetModelInfo(projectUuid string, modelId int64) (string, error)
+	GetModelInfo(ctx context.Context, modelId int64) (string, error)
 	// 获取项目下的模型列表
-	GetModelList(projectUuid string) (string, error)
+	GetModelList(ctx context.Context) (string, error)
 }

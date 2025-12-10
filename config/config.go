@@ -327,16 +327,3 @@ func initDatabaseSettings() {
 		RedisSettings = make(map[string]string)
 	}
 }
-
-// ReloadConfig 重新加载配置（谨慎使用）
-func ReloadConfig(configPath string) error {
-	if configPath == "" {
-		configPath = DefaultConfigPath
-	}
-
-	// 重置初始化状态
-	isInitialized = false
-	configOnce = sync.Once{}
-
-	return InitConfig(configPath)
-}

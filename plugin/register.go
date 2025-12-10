@@ -18,27 +18,27 @@ const (
 
 type Registry struct {
 	// DroneAdapters is a map of drone types to their respective adapters.
-	mu      sync.RWMutex // 并发安全
-	Plugins map[PluginType]map[reflect.Type]interface{}
-	Status  map[PluginType]service.PluginStatus // 插件状态
+	mu            sync.RWMutex // 并发安全
+	PluginFactory map[PluginType]map[reflect.Type]func() interface{}
+	Status        map[PluginType]service.PluginStatus // 插件状态
 }
 
-// 全局单例模式
+// 全局单例模式- 使用工厂模式
 var registry = &Registry{
-	Plugins: make(map[PluginType]map[reflect.Type]interface{}),
-	Status:  make(map[PluginType]service.PluginStatus),
+	PluginFactory: make(map[PluginType]map[reflect.Type]func() interface{}),
+	Status:        make(map[PluginType]service.PluginStatus),
 }
 
 // 注册插件.
-func RegisterPlugin(pluginType PluginType, ifaceType reflect.Type, Build interface{}) {
+func RegisterPlugin(pluginType PluginType, ifaceType reflect.Type, Build func() interface{}) {
 	registry.mu.Lock()
 	defer registry.mu.Unlock()
 
-	if registry.Plugins[pluginType] == nil {
-		registry.Plugins[pluginType] = make(map[reflect.Type]interface{})
+	if registry.PluginFactory[pluginType] == nil {
+		registry.PluginFactory[pluginType] = make(map[reflect.Type]func() interface{})
 	}
 
-	registry.Plugins[pluginType][ifaceType] = Build
+	registry.PluginFactory[pluginType][ifaceType] = Build
 	registry.Status[pluginType] = service.PluginRegistered
 }
 
@@ -46,7 +46,7 @@ func RegisterPlugin(pluginType PluginType, ifaceType reflect.Type, Build interfa
 func Enable(pluginType PluginType) {
 	registry.mu.RLock()
 	defer registry.mu.RUnlock()
-	if _, ok := registry.Plugins[pluginType]; ok {
+	if _, ok := registry.PluginFactory[pluginType]; ok {
 		registry.Status[pluginType] = service.PluginEnabled
 	}
 }
@@ -55,7 +55,7 @@ func Enable(pluginType PluginType) {
 func Disable(pluginType PluginType) {
 	registry.mu.Lock()
 	defer registry.mu.Unlock()
-	if _, ok := registry.Plugins[pluginType]; ok {
+	if _, ok := registry.PluginFactory[pluginType]; ok {
 		registry.Status[pluginType] = service.PluginDisabled
 	}
 }
@@ -64,10 +64,10 @@ func Disable(pluginType PluginType) {
 func Unload(pluginType PluginType) {
 	registry.mu.Lock()
 	defer registry.mu.Unlock()
-	if _, ok := registry.Plugins[pluginType]; ok {
+	if _, ok := registry.PluginFactory[pluginType]; ok {
 		registry.Status[pluginType] = service.PluginUnloaded
 	}
-	delete(registry.Plugins, pluginType)
+	delete(registry.PluginFactory, pluginType)
 }
 
 // 获取启用状态下的适配器
@@ -78,7 +78,8 @@ func Get[T interface{}](pluginType PluginType) (T, bool) {
 	// 泛型参数T的类型实例化
 	var plugin T
 	ifaceType := reflect.TypeOf(&plugin).Elem()
-	if impl, ok := registry.Plugins[pluginType][ifaceType]; ok {
+	if factory, ok := registry.PluginFactory[pluginType][ifaceType]; ok {
+		impl := factory()
 		return impl.(T), true
 	}
 

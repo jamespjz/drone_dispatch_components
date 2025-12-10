@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"gitee.com/jamespi/drone_dispatch/pkg/tenant"
+	"github.com/google/uuid"
 	"log"
+	"time"
 
 	"gitee.com/jamespi/drone_dispatch/config"
 	"gitee.com/jamespi/drone_dispatch/plugin"
@@ -18,6 +22,43 @@ func main() {
 	// 司空2调用
 	// 启用指定插件
 	plugin.LoadEnableList([]string{"fh2", "dji_dock2"})
+	// 多租户使用
+	demonstrateMultiTenant()
+
+	// 单租户使用（向后兼容  已废除）
+	//demonstrateBackwardCompatible()
+}
+
+// demonstrateMultiTenant 多租户使用
+func demonstrateMultiTenant() {
+	log.Println("多租户使用示例开始...")
+	// 创建多租户
+	tenantInfo := tenant.NewTenantInfo(1, "eyJhbGciOiJIUzUxMiIsImNyaXQiOlsidHlwIiwiYWxnIiwia2lkIl0sImtpZCI6IjhiZmRiZmRkLWM4OGYtNGE5Yi04NzI3LWQ0ZGYzYWE5OTJlOSIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50IjoiMTU1MDMwMzc3NjAiLCJleHAiOjIwNjU4NzM3NDEsIm5iZiI6MTc1MDM0MDk0MSwib3JnYW5pemF0aW9uX3V1aWQiOiJhODg3ZjRkMy0wMTg2LTQ1OGMtOTBhMC1jMWQ1MGU4ZjM4ZjciLCJwcm9qZWN0X3V1aWQiOiIiLCJzdWIiOiJmaDIiLCJ1c2VyX2lkIjoiMTU3NDcwMzk4NDY5MTQxMjk5MiJ9.HwRfFQUXT3vGdElPCLFg06d-BzRcRREyvWJfFtzvdYrmVHB-zy9bZEN08BSYKxCpGPKp8F2_vO39U9-zY9E1uA", "c33595a4-3996-481d-9d81-459d435ade84")
+	tenantInfo.Permissions = []string{"fh2:read", "fh2:write"}
+	tenantInfo.ExpiresAt = time.Now().Add(12 * time.Hour) // 设置过期时间为2小时后
+
+	// 创建带租户信息得上下文
+	ctx := context.Background()
+	ctx = tenant.WithTenant(ctx, tenantInfo)
+	ctx = tenant.WithRequestID(ctx, uuid.New().String())
+
+	// 获取插件实例
+	if fh2, ok := plugin.Get[service.FH2DroneAdapter](plugin.FH2Plugin); ok {
+		log.Println("开始使用多租户插件...")
+		// 在这里可以传递ctx给插件的方法，以便插件内部使用租户信息
+		// 获取组织下的项目列表
+		if projectList, err := fh2.GetprojectList(); err != nil {
+			log.Println("获取项目列表失败:", err)
+		} else {
+			log.Println("获取项目列表成功, 租户 %s 的项目列表: %s\n", tenantInfo.TenantId, projectList)
+		}
+	} else {
+		fmt.Println("插件未启用或不存在")
+	}
+}
+
+// demonstrateBackwardCompatible 单租户使用 (已废除)
+func demonstrateBackwardCompatible() {
 	// 获取并使用
 	if fh2, ok := plugin.Get[service.FH2DroneAdapter](plugin.FH2Plugin); ok {
 		// 调用适配器方法
@@ -107,7 +148,7 @@ func main() {
 		//}
 		//fmt.Println("设备物模型:", taskStatus)
 		// 获取项目的存储上传凭证
-		stsTokenInfo, err := fh2.GetProjectStsToken("c33595a4-3996-481d-9d81-459d435ade84")
+		stsTokenInfo, err := fh2.GetProjectStsToken()
 		if err != nil {
 			fmt.Println("获取存储上传凭证失败:", err)
 			return

@@ -23,13 +23,13 @@ type Registry struct {
 	Status        map[PluginType]service.PluginStatus // 插件状态
 }
 
-// 全局单例模式- 使用工厂模式
+// registry 全局单例模式- 使用工厂模式
 var registry = &Registry{
 	PluginFactory: make(map[PluginType]map[reflect.Type]func() interface{}),
 	Status:        make(map[PluginType]service.PluginStatus),
 }
 
-// 注册插件.
+// RegisterPlugin 注册插件.
 func RegisterPlugin(pluginType PluginType, ifaceType reflect.Type, Build func() interface{}) {
 	registry.mu.Lock()
 	defer registry.mu.Unlock()
@@ -42,7 +42,7 @@ func RegisterPlugin(pluginType PluginType, ifaceType reflect.Type, Build func() 
 	registry.Status[pluginType] = service.PluginRegistered
 }
 
-// 启用插件
+// Enable 启用插件
 func Enable(pluginType PluginType) {
 	registry.mu.RLock()
 	defer registry.mu.RUnlock()
@@ -51,7 +51,7 @@ func Enable(pluginType PluginType) {
 	}
 }
 
-// 禁用插件
+// Disable 禁用插件
 func Disable(pluginType PluginType) {
 	registry.mu.Lock()
 	defer registry.mu.Unlock()
@@ -60,7 +60,7 @@ func Disable(pluginType PluginType) {
 	}
 }
 
-// 卸载插件
+// Unload 卸载插件
 func Unload(pluginType PluginType) {
 	registry.mu.Lock()
 	defer registry.mu.Unlock()
@@ -70,7 +70,7 @@ func Unload(pluginType PluginType) {
 	delete(registry.PluginFactory, pluginType)
 }
 
-// 获取启用状态下的适配器
+// Get 获取启用状态下的适配器
 // 判断该插件是否存在并且已返回目标T接口类型的插件实例
 func Get[T interface{}](pluginType PluginType) (T, bool) {
 	registry.mu.RLock()

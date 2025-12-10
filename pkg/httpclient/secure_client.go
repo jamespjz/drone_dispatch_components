@@ -11,10 +11,12 @@ import (
 	"time"
 )
 
+// SecureHTTPClient 请求结构体
 type SecureHTTPClient struct {
 	client *http.Client
 }
 
+// NewSecureHTTPClient 创建请求客户端
 func NewSecureHTTPClient() *SecureHTTPClient {
 	return &SecureHTTPClient{
 		client: &http.Client{

@@ -19,13 +19,14 @@ import (
 	"sync"
 )
 
+// TenantInfo 租户上下文基础信息
 type TenantInfo struct {
 	XUserToken  string `json:"xUserToken"`
 	ProjectUUID string `json:"project_uuid"`
 	TenantId    int64  `json:"tenant_id"`
 }
 
-// 司空2适配器
+// FH2Adapter 司空2适配器
 // 司空2openapi接口文档地址：https://apifox.com/apidoc/shared/6b4ca90b-233f-48ac-818c-d694acb0663a/api-221842037
 type FH2Adapter struct {
 	tenantInfo   *TenantInfo
@@ -42,7 +43,7 @@ func NewFH2Adapter() *FH2Adapter {
 	}
 }
 
-// 定义与API响应对应的结构体
+// APIResponse 定义与API响应对应的结构体
 type APIResponse struct {
 	Code    int             `json:"code"`
 	Message string          `json:"message"`
@@ -121,7 +122,7 @@ func (F *FH2Adapter) doRequestWithHeaders(ctx context.Context, method, url strin
 	return bodyBytes, nil
 }
 
-// 获取组织下的项目列表
+// GetprojectList 获取组织下的项目列表
 func (F *FH2Adapter) GetprojectList(ctx context.Context) (string, error) {
 	encodedQ := url.QueryEscape(config.FH2Settings["q"])
 	if err := F.validator.ValidateQueryParam(encodedQ); err != nil {
@@ -133,21 +134,21 @@ func (F *FH2Adapter) GetprojectList(ctx context.Context) (string, error) {
 	return string(resp), err
 }
 
-// 获取项目下的设备列表
+// GetDeviceList 获取项目下的设备列表
 func (F *FH2Adapter) GetDeviceList(ctx context.Context) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/project/device", config.FH2Settings["host"])
 	resp, err := F.doRequestWithTenant(ctx, http.MethodGet, url, nil)
 	return string(resp), err
 }
 
-// 获取项目的存储上传凭证
+// GetProjectStsToken 获取项目的存储上传凭证
 func (F *FH2Adapter) GetProjectStsToken(ctx context.Context) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/project/sts-token", config.FH2Settings["host"])
 	resp, err := F.doRequestWithTenant(ctx, http.MethodGet, url, nil)
 	return string(resp), err
 }
 
-// 获取设备物模型信息
+// GetStsToken 获取设备物模型信息
 func (F *FH2Adapter) GetStsToken(ctx context.Context, deviceSn string) (string, error) {
 	if err := F.validator.ValidateDeviceSN(deviceSn); err != nil {
 		return "", fmt.Errorf("设备序列号验证失败: %w", err)
@@ -157,7 +158,7 @@ func (F *FH2Adapter) GetStsToken(ctx context.Context, deviceSn string) (string, 
 	return string(resp), err
 }
 
-// 获取设备HMS信息
+// GetDeviceHms 获取设备HMS信息
 func (F *FH2Adapter) GetDeviceHms(ctx context.Context, deviceSnList string) (string, error) {
 	encodedQ := url.QueryEscape(deviceSnList)
 	if err := F.validator.ValidateQueryParam(encodedQ); err != nil {
@@ -168,7 +169,7 @@ func (F *FH2Adapter) GetDeviceHms(ctx context.Context, deviceSnList string) (str
 	return string(resp), err
 }
 
-// 实时控制指令下发
+// UpdateDeviceCommand 实时控制指令下发
 // 在航线飞行或者手动飞行过程中，可以调用此命令对飞行器进行实时控制，比如返航，取消返航，飞行任务暂停和恢复等操作。
 //
 //	payLoad := `{
@@ -183,7 +184,7 @@ func (F *FH2Adapter) UpdateDeviceCommand(ctx context.Context, deviceSn string, p
 	return string(resp), err
 }
 
-// 机场相机切换
+// UpdateDeviceChangeCamera 机场相机切换
 // 支持机场相机的切换，可切换舱内和舱外相机。
 // camera_index 和 camera_position 信息可通过获取组织下的设备列表接口下的 data.list.gateway:.camera_list 中获取。
 //
@@ -198,7 +199,7 @@ func (F *FH2Adapter) UpdateDeviceChangeCamera(ctx context.Context, payLoad io.Re
 	return string(resp), err
 }
 
-// 设备飞行器镜头切换
+// UpdateDeviceChangeLens 设备飞行器镜头切换
 // 支持飞行器相机镜头的切换，可切换广角，变焦和红外。
 // 需要先调用控制权获取接口获取飞行器控制权后才能进行飞行器镜头切换。
 // camera_index 和 lens_type 信息可通过获取组织下的设备列表接口下的 data.list.drone:.camera_list 中获取。
@@ -214,7 +215,7 @@ func (F *FH2Adapter) UpdateDeviceChangeLens(ctx context.Context, payLoad io.Read
 	return string(resp), err
 }
 
-// 获取设备控制权
+// GetDeviceControl 获取设备控制权
 // 如果你需要针对特定飞行器设备的负载进行操作，需要先获取该负载设备的控制权，然后对这个负载进行操作。比如对飞行器的某个负载相机的镜头进行切换。
 // payload_index 参数可通过获取设备列表中data.list.drone.camera_list.camera_index传入。
 //
@@ -228,7 +229,7 @@ func (F *FH2Adapter) GetDeviceControl(ctx context.Context, payLoad io.Reader) (s
 	return string(resp), err
 }
 
-// 设备控制权释放
+// DeleteDeviceControl 设备控制权释放
 // 释放指定设备的指定负载的控制权。
 // payload_index 参数可通过获取设备列表中data.list.drone.camera_list.camera_index传入。
 //
@@ -242,7 +243,7 @@ func (F *FH2Adapter) DeleteDeviceControl(ctx context.Context, payLoad io.Reader)
 	return string(resp), err
 }
 
-// 图传清晰度设置(支持自动，流畅，超清设置)
+// UpdateDeviceStreamQuality 图传清晰度设置(支持自动，流畅，超清设置)
 // 需要先调用控制权获取接口获取飞行器控制权后才能进行图传清晰度设置
 // camera_index 信息可通过获取组织下的设备列表接口下的 data.list.drone:.camera_list 中获取
 //
@@ -257,7 +258,7 @@ func (F *FH2Adapter) UpdateDeviceStreamQuality(ctx context.Context, payLoad io.R
 	return string(resp), err
 }
 
-// 自定义网络RTK标定
+// CreateDeviceRTK 自定义网络RTK标定
 //
 //	payLoad := `{
 //			   "host": "10.53.226.97",  // 服务器地址
@@ -275,7 +276,7 @@ func (F *FH2Adapter) CreateDeviceRTK(ctx context.Context, deviceSn string, payLo
 	return string(resp), err
 }
 
-// 开启直播
+// LiveStreamStart 开启直播
 // 启用设备直播功能后，设备将自动向媒体服务器推流，并返回对应直播供应商的鉴权信息。需集成供应商的SDK（如火山引擎、声网、SRS等），通过鉴权信息调用其接口拉取直播流。
 // camera_index 信息可通过获取组织下的设备列表接口下的 data.list.drone.camera_list 中获取。
 // 没有拉流观众5分钟后，将停止直播推流。
@@ -292,7 +293,7 @@ func (F *FH2Adapter) LiveStreamStart(ctx context.Context, payLoad io.Reader) (st
 	return string(resp), err
 }
 
-// 创建飞行任务
+// CreateFlightTask 创建飞行任务
 //
 //	payLoad := `{
 //			   "name": "测试任务",
@@ -314,7 +315,7 @@ func (F *FH2Adapter) CreateFlightTask(ctx context.Context, payLoad io.Reader) (s
 	return string(resp), err
 }
 
-// 更新飞行状态
+// UpdateFlightTaskStatus 更新飞行状态
 //
 //	payLoad := `{
 //				   "status": restored/restored  //任务挂起&任务恢复
@@ -328,7 +329,7 @@ func (F *FH2Adapter) UpdateFlightTaskStatus(ctx context.Context, taskUUID string
 	return string(resp), err
 }
 
-// 获取飞行任务信息
+// GetFlightTaskInfo 获取飞行任务信息
 func (F *FH2Adapter) GetFlightTaskInfo(ctx context.Context, taskUUID string) (string, error) {
 	if err := F.validator.ValidateUUID(taskUUID); err != nil {
 		return "", fmt.Errorf("UUID验证失败: %w", err)
@@ -338,7 +339,7 @@ func (F *FH2Adapter) GetFlightTaskInfo(ctx context.Context, taskUUID string) (st
 	return string(resp), err
 }
 
-// 获取飞行任务列表
+// GetFlightTask 获取飞行任务列表
 func (F *FH2Adapter) GetFlightTask(ctx context.Context, sn string, name string, beginAt int, endAt int, taskType string, status string) (string, error) {
 	if err := F.validator.ValidateDeviceSN(sn); err != nil {
 		return "", fmt.Errorf("设备序列号验证失败: %w", err)
@@ -351,7 +352,7 @@ func (F *FH2Adapter) GetFlightTask(ctx context.Context, sn string, name string, 
 	return string(resp), err
 }
 
-// 获取飞行任务产生的媒体资源
+// GetFlightTaskMedia 获取飞行任务产生的媒体资源
 func (F *FH2Adapter) GetFlightTaskMedia(ctx context.Context, taskUUID string) (string, error) {
 	if err := F.validator.ValidateUUID(taskUUID); err != nil {
 		return "", fmt.Errorf("UUID验证失败: %w", err)
@@ -361,7 +362,7 @@ func (F *FH2Adapter) GetFlightTaskMedia(ctx context.Context, taskUUID string) (s
 	return string(resp), err
 }
 
-// 获取飞行任务轨迹信息
+// GetFlightTaskTrack 获取飞行任务轨迹信息
 func (F *FH2Adapter) GetFlightTaskTrack(ctx context.Context, taskUUID string) (string, error) {
 	if err := F.validator.ValidateUUID(taskUUID); err != nil {
 		return "", fmt.Errorf("UUID验证失败: %w", err)
@@ -371,7 +372,7 @@ func (F *FH2Adapter) GetFlightTaskTrack(ctx context.Context, taskUUID string) (s
 	return string(resp), err
 }
 
-// 航线上传完成通知
+// SetFinishUpload 航线上传完成通知
 func (F *FH2Adapter) SetFinishUpload(ctx context.Context, objectKeyPrefix string, fileName string) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/wayline/finish-upload", config.FH2Settings["host"])
 	payload := strings.NewReader(fmt.Sprintf(`{"name":"%s","object_key":"%s"}`, fileName, objectKeyPrefix))
@@ -379,14 +380,14 @@ func (F *FH2Adapter) SetFinishUpload(ctx context.Context, objectKeyPrefix string
 	return string(resp), err
 }
 
-// 获取项目下航线列表
+// GetWayLine 获取项目下航线列表
 func (F *FH2Adapter) GetWayLine(ctx context.Context) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/wayline", config.FH2Settings["host"])
 	resp, err := F.doRequestWithTenant(ctx, http.MethodGet, url, nil)
 	return string(resp), err
 }
 
-// 获取项目下的航线详情
+// GetWayLineInfo 获取项目下的航线详情
 func (F *FH2Adapter) GetWayLineInfo(ctx context.Context, wayLineUuid string) (string, error) {
 	if err := F.validator.ValidateUUID(wayLineUuid); err != nil {
 		return "", fmt.Errorf("UUID验证失败: %w", err)
@@ -396,21 +397,21 @@ func (F *FH2Adapter) GetWayLineInfo(ctx context.Context, wayLineUuid string) (st
 	return string(resp), err
 }
 
-// 模型重建
+// CreateModel 模型重建
 func (F *FH2Adapter) CreateModel(ctx context.Context, payLoad io.Reader) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/model/create", config.FH2Settings["host"])
 	resp, err := F.doRequestWithTenant(ctx, http.MethodPost, url, payLoad)
 	return string(resp), err
 }
 
-// 获取模型详情
+// GetModelInfo 获取模型详情
 func (F *FH2Adapter) GetModelInfo(ctx context.Context, modelId int64) (string, error) {
 	url := fmt.Sprintf("%s/openapi/v0.1/model/%s", config.FH2Settings["host"], modelId)
 	resp, err := F.doRequestWithTenant(ctx, http.MethodGet, url, nil)
 	return string(resp), err
 }
 
-// 获取项目下模型列表
+// GetModelList 获取项目下模型列表
 func (F *FH2Adapter) GetModelList(ctx context.Context) (string, error) {
 	url := fmt.Sprintf("%s//openapi/v0.1/model", config.FH2Settings["host"])
 	resp, err := F.doRequestWithTenant(ctx, http.MethodGet, url, nil)

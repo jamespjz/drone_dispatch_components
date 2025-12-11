@@ -88,7 +88,7 @@ if err := config.InitDefaultConfig(); err != nil {
 func demonstrateMultiTenant() {
 	log.Println("多租户使用示例开始...")
 	// 创建多租户
-	tenantInfo := tenant.NewTenantInfo(1, "eyJhbGciOiJIUzUxMiIsImNyaXQiOlsidHlwIiwiYWxnIiwia2lkIl0sImtpZCI6IjhiZmRiZmRkLWM4OGYtNGE5Yi04NzI3LWQ0ZGYzYWE5OTJlOSIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50IjoiMTU1MDMwMzc3NjAiLCJleHAiOjIwNjU4NzM3NDEsIm5iZiI6MTc1MDM0MDk0MSwib3JnYW5pemF0aW9uX3V1aWQiOiJhODg3ZjRkMy0wMTg2LTQ1OGMtOTBhMC1jMWQ1MGU4ZjM4ZjciLCJwcm9qZWN0X3V1aWQiOiIiLCJzdWIiOiJmaDIiLCJ1c2VyX2lkIjoiMTU3NDcwMzk4NDY5MTQxMjk5MiJ9.HwRfFQUXT3vGdElPCLFg06d-BzRcRREyvWJfFtzvdYrmVHB-zy9bZEN08BSYKxCpGPKp8F2_vO39U9-zY9E1uA", "c33595a4-3996-481d-9d81-459d435ade84")
+	tenantInfo := tenant.NewTenantInfo(1, "xxxx.HwRfFQUXT3vGdElPCLFg06d-BzRcRREyvWJfFtzvdYrmVHB-zy9bZEN08BSYKxCpGPKp8F2_vO39U9-zY9E1uA", "c33595a4-9d81-459d435ade84")
 	tenantInfo.Permissions = []string{"fh2:read", "fh2:write"}
 	tenantInfo.ExpiresAt = time.Now().Add(12 * time.Hour) // 设置过期时间为2小时后
 

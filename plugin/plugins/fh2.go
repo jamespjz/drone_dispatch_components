@@ -38,8 +38,9 @@ type FH2Adapter struct {
 // NewFH2Adapter 创建一个新的FH2适配器
 func NewFH2Adapter() *FH2Adapter {
 	return &FH2Adapter{
-		tenantInfo: &TenantInfo{},
-		validator:  validator.GetValidator(),
+		tenantInfo:   &TenantInfo{},
+		validator:    validator.GetValidator(),
+		secureClient: httpclient.NewSecureHTTPClient(),
 	}
 }
 

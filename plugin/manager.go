@@ -39,7 +39,7 @@ func PluginsList() []PluginInfo {
 	defer registry.mu.RUnlock()
 
 	var list []PluginInfo
-	for pluginType, ifaceMap := range registry.Plugins {
+	for pluginType, ifaceMap := range registry.PluginFactory {
 		var ifaceTypes []reflect.Type
 		for ifaceType := range ifaceMap {
 			ifaceTypes = append(ifaceTypes, ifaceType)
